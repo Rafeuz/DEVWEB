@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Livro de Visitas</title>
+  </head>
+<body>
+
+
+{% for mensagens in mensagens %}
+<li>
+  <strong>Nome: </strong>{{ mensagens.nome }}<br/>
+  <strong>Mensagem: </strong>{{ mensagens.texto }}<br/><br>
+</li>
+{% endfor %}
+
+
+<form action="{% url 'lvapp:enviar' %}" method="post">
+{% csrf_token %}
+
+  Nome:<br/>
+  <input type="text" name="nome"/><br/>
+  Mensagem:<br/>
+  <textarea name="texto" id="texto" rows="8" cols="80"></textarea>
+  <input type="submit" value="enviar">
+
+</form>
+</body>
+</html>
