@@ -22,10 +22,10 @@
 
 
 	<h2>Faça um comentário:</h2>
-	<form action="{% url 'blog:detalhes' postagem.id %}" method="post">
+	<form action="{% url 'blog:salvarcomentarios' postagem.id %}" method="post">
 		{% csrf_token %}
 		<strong>Nome:</strong><br>
-		<input type="text" name="nome"><br>
+		<input type="text" name="autor"><br>
 		<strong>Comentário:</strong><br>
 		<textarea name="texto" id="texto" rows="8" cols="80"></textarea>
 		<input type="submit" value="Enviar">
