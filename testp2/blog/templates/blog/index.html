@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title> BLOG </title>
+</head>
+<body>
+	<h1>Lista de Postagens</h1>
+	{% if ultimas_postagens %}
+	<ul>
+		{% for postagem in ultimas_postagens %}
+			<li><a href="{% url 'blog:detalhes' postagem.id %}"> {{ postagem.conteudo | slice:"0:29" }}</a></li>
+		{% endfor %}
+	</ul>
+	{% else %}
+		<p>Nenhuma postagem feita.</p>
+	{% endif %}
+
+	<p><a href="/admin">Área Admin</a></p>
+
+</body>
+</html>

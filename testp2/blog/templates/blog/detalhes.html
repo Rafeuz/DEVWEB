@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Detalhes de postagem</title>
+</head>
+<body>
+	<h3> {{ postagem.conteudo }}</h3>
+	<p> {{ postagem.data }}</p>
+	<img src=" {{ postagem.link }} " alt="imagem">
+	<p><a href="{% url 'blog:index' %}">Voltar</a></p>
+
+	{% if comentario %}
+		<h3><strong>Comentários:</strong></h3>
+		<li>
+			<p>{{ comentario.autor }}</p>
+			<p>{{ comentario.texto }}</p>
+		</li>
+	{% else %}
+		<p>Sem comentários.</p>
+	{% endif %}
+
+
+	<h2>Faça um comentário:</h2>
+	<form action="{% url 'blog:detalhes' postagem.id %}" method="post">
+		{% csrf_token %}
+		<strong>Nome:</strong><br>
+		<input type="text" name="nome"><br>
+		<strong>Comentário:</strong><br>
+		<textarea name="texto" id="texto" rows="8" cols="80"></textarea>
+		<input type="submit" value="Enviar">
+
+		
+	</form>
+		
+
+</body>
+</html>
