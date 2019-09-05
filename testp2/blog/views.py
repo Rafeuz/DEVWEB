@@ -23,8 +23,8 @@ def detalhes(request, postagem_id):
 	return render(request, 'blog/detalhes.html', contexto)
 
 def salvarcomentarios(request, postagem_id):
-
-	postagem = Comentario.objects.filter(pk=id_comentario)[0]
-	comentario = Comentario(autor=request.POST['autor'], texto=request.POST['texto'], postagem=postagem_id)
+	autorpost = request.POST['autor']
+	textopost = request.POST['texto']
+	comentario = Comentario(autor=autorpost, texto=textopost, postagem=postagem_id)
 	comentario.save()
-	return HttpResponseRedirect(reverse('blog:detalhes', args=(postagem)))
+	return HttpResponseRedirect(reverse('blog:detalhes', args=(postagem_id)))
