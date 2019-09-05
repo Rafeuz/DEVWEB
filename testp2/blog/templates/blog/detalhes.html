@@ -9,12 +9,13 @@
 	<img src=" {{ postagem.link }} " alt="imagem">
 	<p><a href="{% url 'blog:index' %}">Voltar</a></p>
 
-	{% if comentario %}
+	{% if comentarios %}
 		<h3><strong>Comentários:</strong></h3>
-		<li>
-			<p>{{ comentario.autor }}</p>
-			<p>{{ comentario.texto }}</p>
-		</li>
+		{% for comentario in comentarios %}
+			<p>Nome: {{ comentario.autor }}</p>
+			<p>Comentário:  {{ comentario.texto }}</p>
+		{% endfor %}
+
 	{% else %}
 		<p>Sem comentários.</p>
 	{% endif %}
@@ -28,8 +29,6 @@
 		<strong>Comentário:</strong><br>
 		<textarea name="texto" id="texto" rows="8" cols="80"></textarea>
 		<input type="submit" value="Enviar">
-
-		
 	</form>
 		
 
