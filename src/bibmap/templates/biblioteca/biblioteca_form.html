@@ -1,0 +1,427 @@
+{% load static %}
+<script type="text/javascript">
+    //Script para pegar endereco
+    var element;
+    function apagarCampos() {
+        document.getElementById('rua').value = ("");
+        document.getElementById('ruashow').value = ("");
+        document.getElementById('bairro').value = ("");
+        document.getElementById('bairroshow').value = ("");
+        document.getElementById('cidade').value = ("");
+        document.getElementById('cidadeshow').value = ("");
+        document.getElementById('estado').value = ("");
+        document.getElementById('estadoshow').value = ("");
+    }
+    function apagar() {
+        if (document.getElementById('AlertCEP').childNodes[0].classList.contains('fadeOutUp')) {
+            document.getElementById('AlertCEP').innerHTML = "";
+        }
+    }
+    function callback(json) {
+        if (!("erro" in json)) {
+            //Atualiza os campos com os valores.
+            document.getElementById('rua').value = (json.logradouro);
+            document.getElementById('ruashow').value = (json.logradouro);
+            document.getElementById('bairro').value = (json.bairro);
+            document.getElementById('bairroshow').value = (json.bairro);
+            document.getElementById('cidade').value = (json.localidade);
+            document.getElementById('cidadeshow').value = (json.localidade);
+            document.getElementById('estado').value = (json.uf);
+            document.getElementById('estadoshow').value = (json.uf);
+            document.getElementById("numero").focus();
+            div = document.getElementById('AlertCEP').childNodes[0].classList;
+            element = document.getElementById('AlertCEP').childNodes[0];
+            div.remove('fadeInDown');
+            div.add('fadeOutUp');
+            element.addEventListener("animationend", apagar);
+
+        }
+        else {
+            apagarCampos();
+            var div = document.getElementById('AlertCEP');
+            div.innerHTML = `<div class="alert alert-warning animated fadeInDown" role="alert">CEP não encontrado</div>`;
+        }
+    }
+
+    function pesquisacep(valor) {
+
+        var cep = patternMask.unmaskedValue;
+        //Nova variável "cep" somente com dígitos.
+        //var cep = ;
+        //console.log(cep.lenght)
+        if (cep.length != 8) return;
+        if (cep.length == 8) {
+            apagarCampos();
+        }
+        //Verifica se campo cep possui valor informado.
+        if (cep != "") {
+            //Expressão regular para validar o CEP.
+            var validacep = /^[0-9]{8}$/;
+
+            //Valida o formato do CEP.
+            if (validacep.test(cep)) {
+
+                //Cria um elemento javascript.
+                var script = document.createElement('script');
+
+                //Sincroniza com o callback.
+                script.src = 'https://viacep.com.br/ws/' + cep + '/json/?callback=callback';
+
+                //Insere script no documento e carrega o conteúdo.
+                document.body.appendChild(script);
+
+            }
+            else {
+                apagarCampos();
+                var div = document.getElementById('AlertCEP');
+                div.innerHTML = `<div class="alert alert-warning fadeInDown" role="alert">Formato de CEP inválido</div>`;
+            }
+        }
+    };
+    //Função que obtem a imagem a ser enviada e visualiza no formulário
+    var flag = false;
+    var cropper;
+    //Função que obtem a imagem a ser enviada e visualiza no formulário
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+    async function LoadImage(input) {
+        if (readURL(input)) {
+            await sleep(200);
+            var image = document.getElementById('img_foto');
+            if (flag) {
+                cropper.destroy();
+            }
+            else {
+                flag = true;
+            }
+            createCropper();
+        }
+
+    }
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                $('#img_foto')
+                    .attr('src', e.target.result)
+                    .width(450);
+                //.height(197);
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+        return true;
+    }
+    function createCropper() {
+        var image = document.getElementById('img_foto');
+        cropper = new Cropper(image, {
+            aspectRatio: 16 / 9,
+            viewMode: 3,
+            zoomable: false,
+            crop(event) {
+                $('#xinput').val(event.detail.x);
+                $('#yinput').val(event.detail.y);
+                $('#widthinput').val(event.detail.width);
+                $('#heightinput').val(event.detail.height);
+            },
+        });
+    }
+</script>
+<form action="{% url 'biblioteca:Adicionar' %}" method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="modal fade" id="cadastrarModal" tabindex="-1" role="dialog" aria-labelledby="cadastrarModal"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Cadastrar uma nova biblioteca</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="nome">Nome:</label>
+                        <input type="text" class="form-control" id="nome" name="nome" placeholder="Nome da biblioteca">
+                    </div>
+                    <div class="form-group text-center">
+                        <label for="foto">Foto</label>
+                        <br />
+                        <input id="xinput" type="hidden" name="x">
+                        <input id="yinput" type="hidden" name="y">
+                        <input id="widthinput" type="hidden" name="width">
+                        <input id="heightinput" type="hidden" name="height">
+                        <div max_width=100%>
+                            <img id="img_foto" src="{% static 'img/no-photos.png' %}" style="max-width: 100%"
+                                alt="Foto" />
+                        </div>
+                        <br />
+                        <br />
+                        <div class="custom-file text-center">
+                            <input type="file" class="custom-file-input" onchange="LoadImage(this)" id="foto"
+                                accept="image/*" name="foto">
+                            <label class="custom-file-label" for="customFile">Escolha um arquivo</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="nome">Bibliotecário responsável:</label>
+                        <input type="text" class="form-control" id="nome_bibliotecario" name="nome_bibliotecario"
+                            placeholder="Nome do bibliotecario">
+                    </div>
+                    <div class="row">
+                        <div class="col-sm">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="True" id="independente"
+                                    name="independente">
+                                <label class="form-check-label" for="independente">
+                                    Independente
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-sm">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="True" id="aquisicao_acervo"
+                                    name="aquisicao_acervo">
+                                <label class="form-check-label" for="aquisicao_acervo">
+                                    Acervo próprio?
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="True" id="aberto_a_comunidade"
+                                    name="aberto_a_comunidade">
+                                <label class="form-check-label" for="aberto_a_comunidade">
+                                    Aberta a comunidade
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-sm">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="True" id="status" name="status">
+                                <label class="form-check-label" for="status">
+                                    Biblioteca ativa
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                    <h5>Características da biblioteca</h5>
+                    <br />
+                    <div class="row">
+                        <div class="col-sm">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="True" id="computador"
+                                    name="computador">
+                                <label class="form-check-label" for="computador">
+                                    Computadores
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-sm">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="True" id="ar_condicionado"
+                                    name="ar_condicionado">
+                                <label class="form-check-label" for="ar_condicionado">
+                                    Ar-condicionado
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="True" id="mesa_de_estudo"
+                                    name="mesa_de_estudo">
+                                <label class="form-check-label" for="mesa_de_estudo">
+                                    Mesas de estudo
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-sm">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="True" id="empresta_livro"
+                                    name="empresta_livro">
+                                <label class="form-check-label" for="empresta_livro">
+                                    Empresta livros
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="True" id="wifi" name="wifi">
+                                <label class="form-check-label" for="wifi">
+                                    WIFI
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                    <h5>Endereço </h5>
+                    <br />
+                    <div id="AlertCEP"></div>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label for="cep">CEP:</label>
+                                <input onkeyup="pesquisacep(this.value);" type="text" class="form-control" id="cep"
+                                    name="cep" placeholder="00000-000">
+                            </div>
+                        </div>
+                        <div class="col-sm">
+                            <div class="form-group">
+                                <input type="hidden" name="rua" id="rua" type="text" name="rua" value="">
+                                <label for="ruashow">Rua:</label>
+                                <input disabled type="text" class="form-control" id="ruashow" placeholder="Rua">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label for="numero">Número:</label>
+                                <input type="text" class="form-control" id="numero" name="numero" placeholder="Número">
+                            </div>
+                        </div>
+                        <div class="col-sm">
+                            <div class="form-group">
+                                <input type="hidden" name="bairro" id="bairro" type="text" name="bairro" value="">
+                                <label for="bairroshow">Bairro:</label>
+                                <input type="text" disabled class="form-control" id="bairroshow" placeholder="Bairro">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm">
+                            <div class="form-group">
+                                <input type="hidden" name="cidade" id="cidade" type="text" name="cidade" value="">
+                                <label for="cidadeshow">Cidade:</label>
+                                <input disabled type="text" class="form-control" id="cidadeshow" placeholder="Cidade">
+                            </div>
+                        </div>
+                        <div class="col-sm">
+                            <div class="form-group">
+                                <input type="hidden" name="estado" id="estado" type="text" name="estado" value="">
+                                <label for="estadoshow">Estado:</label>
+                                <select disabled class="form-control" id="estadoshow">
+                                    <option value="AC">Acre</option>
+                                    <option value="AL">Alagoas</option>
+                                    <option value="AP">Amapá</option>
+                                    <option value="AM">Amazonas</option>
+                                    <option value="BA">Bahia</option>
+                                    <option value="CE">Ceará</option>
+                                    <option value="DF">Distrito Federal</option>
+                                    <option value="ES">Espírito Santo</option>
+                                    <option value="GO">Goiás</option>
+                                    <option value="MA">Maranhão</option>
+                                    <option value="MT">Mato Grosso</option>
+                                    <option value="MS">Mato Grosso do Sul</option>
+                                    <option value="MG">Minas Gerais</option>
+                                    <option value="PA">Pará</option>
+                                    <option value="PB">Paraíba</option>
+                                    <option value="PR">Paraná</option>
+                                    <option value="PE">Pernambuco</option>
+                                    <option value="PI">Piauí</option>
+                                    <option value="RJ">Rio de Janeiro</option>
+                                    <option value="RN">Rio Grande do Norte</option>
+                                    <option value="RS">Rio Grande do Sul</option>
+                                    <option value="RO">Rondônia</option>
+                                    <option value="RR">Roraima</option>
+                                    <option value="SC">Santa Catarina</option>
+                                    <option value="SP">São Paulo</option>
+                                    <option value="SE">Sergipe</option>
+                                    <option value="TO">Tocantins</option>
+                                    <option value="EX">Estrangeiro</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm">
+                            <div class="form-group">
+                                <label for="lat">Latitude:</label>
+                                <input type="text" class="form-control" id="lat" value="" name="lat"
+                                    placeholder="Latitude">
+                            </div>
+                        </div>
+                        <div class="col-sm">
+                            <div class="form-group">
+                                <label for="lng">Longitude:</label>
+                                <input type="text" class="form-control" id="lng" name="lng" value=""
+                                    placeholder="Longitude">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm">
+
+                            <div class="alert alert-info alert-dismissible fade show" role="alert">
+                                <h4 class="alert-heading">Por que isso é importante?</h4>
+                                <hr>
+                                As coordenadas de uma biblioteca são necessárias para adicioná-la ao mapa. Você pode
+                                fornecê-la manualmente, ou usar o botão abaixo e pegar suas coordenadas atuais
+                                <br>
+                                <br>
+                                <h5 class="alert-heading" style="font-size:12px">Lembre-se que isso pode aumentar o
+                                    público de sua biblioteca</h5>
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <button onclick="GetLocation()" style="float: right;" type="button" id="GetLoc"
+                                class="btn btn-info btn-sm">
+                                Inserir minhas coordenadas atuais
+                            </button>
+                            <br/><br/>
+                        </div>
+                    </div>
+                    <div id="map" style="height: 50em; width: 100%;">
+                    </div>
+                    <div class="row" style="margin-top: 1.3em">
+                        <div class="col-sm">
+                            <div class="form-group">
+                                <label for="comentario">Descrição</label>
+                                <textarea class="form-control" id="comentario" name="comentario" rows="3"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                    <button type="submit" class="btn btn-success">Cadastrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+
+    function GetLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function (position) {
+                var pos = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                };
+                var inputlat;
+                var inputlng;
+                inputlat = $("#lat");
+                inputlng = $("#lng");
+                inputlat = $("#lat").val(pos.lat);
+                inputlng = $("#lng").val(pos.lng);
+                marker.setLatLng([pos.lat, pos.lng]);
+                marker.bindPopup("Minha biblioteca está aqui").openPopup();
+                mymap.setView([pos.lat, pos.lng], 15)  
+        
+            });
+        } else {
+            alert("Seu navegador não suporta geolocalização");
+        }
+    }
+</script>

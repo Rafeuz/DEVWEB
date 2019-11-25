@@ -1,0 +1,403 @@
+{% load static %}
+{% include 'header.html' %}
+<script type="text/javascript" >
+    //Script para pegar endereco 
+
+    function callback(json) {
+        if (!("erro" in json)) {
+            //Atualiza os campos com os valores.
+            document.getElementById('rua').value=(json.logradouro);
+            document.getElementById('ruashow').value=(json.logradouro);
+            document.getElementById('bairro').value=(json.bairro);
+            document.getElementById('bairroshow').value=(json.bairro);
+            document.getElementById('cidade').value=(json.localidade);
+            document.getElementById('cidadeshow').value=(json.localidade);
+            document.getElementById('estado').value=(json.uf);
+            document.getElementById('estadoshow').value=(json.uf);
+            div = document.getElementById('AlertCEP');
+            div.innerHTML = "";
+        }
+        else {
+            div = document.getElementById('AlertCEP');
+            div.innerHTML = `<div class="alert alert-warning" role="alert">CEP não encontrado</div>`;
+        }
+    }
+        
+    function pesquisacep(valor) {
+
+        //Nova variável "cep" somente com dígitos.
+        var cep = valor;
+        cep = cep.replace("-", "");
+        //Verifica se campo cep possui valor informado.
+        if (cep != "") {
+
+            //Expressão regular para validar o CEP.
+            var validacep = /^[0-9]{8}$/;
+
+            //Valida o formato do CEP.
+            if(validacep.test(cep)) {
+
+                //Cria um elemento javascript.
+                var script = document.createElement('script');
+
+                //Sincroniza com o callback.
+                script.src = 'https://viacep.com.br/ws/'+ cep + '/json/?callback=callback';
+
+                //Insere script no documento e carrega o conteúdo.
+                document.body.appendChild(script);
+
+            }
+            else {
+                var div = document.getElementById('AlertCEP');
+                div.innerHTML = `<div class="alert alert-warning" role="alert">Formato de CEP inválido</div>`;
+            }
+        }
+    };
+  //Função que obtem a imagem a ser enviada e visualiza no formulário
+  var flag = false;
+    var cropper;
+    //Função que obtem a imagem a ser enviada e visualiza no formulário
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+    async function LoadImage(input) {
+        if (readURL(input)) {
+            $("#img_foto").css({visibility: "visible"});
+            $("#backimage").remove();
+            await sleep(200);
+            var image = document.getElementById('img_foto');
+            if (flag) {
+                cropper.destroy();
+            }
+            else {
+                flag = true;
+            }
+            createCropper();
+        }
+
+    }
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                $('#img_foto')
+                    .attr('src', e.target.result)
+                    .width(450);
+                //.height(197);
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+        return true;
+    }
+    function createCropper() {
+        var image = document.getElementById('img_foto');
+        cropper = new Cropper(image, {
+            aspectRatio: 42 / 20,
+            viewMode: 1,
+            zoomable: false,
+            crop(event) {
+                $('#xinput').val(event.detail.x);
+                $('#yinput').val(event.detail.y);
+                $('#widthinput').val(event.detail.width);
+                $('#heightinput').val(event.detail.height);
+            },
+        });
+    }
+</script>
+<main role="main">
+    <!-- Menu do admin -->
+    {% include 'menu_admin.html' %}
+    <!-- /Menu do admin -->
+    <div class="container">
+        <!-- Conteúdo dinâmico -->
+        <div class="row">
+            <div class="col-md-12">
+                <h1 class="text-center">{{ b.nome }}</h1>
+                <!--TAB BIB-->
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Dados da biblioteca</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Acervo</a>
+                    </li>
+                </ul>
+                    <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab"><div class="card" >
+                        <form action="{%url "biblioteca:Editar" b.id%}" method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+                                <div style="width: 95%; margin-left: auto; margin-right: auto; margin-top: 1em" class="text-center">
+                                    {%if messages%}
+                                    {% for message in messages %}
+                                    <div class="alert alert-{{message.tags}} text-center" role="alert">
+                                        {{message}}
+                                    </div>
+                                    {% endfor %}
+                                    {% endif %}
+                                    {% if b.foto|length != 0 %}
+                                        <div id="backimage" style="background-image: url({{ b.foto.url }}); height: 500px; background-position: center;background-size:cover; border-radius: 10px"></div>
+                                    {% endif %}
+                                    <br/>
+                                    <input id="xinput" type="hidden" name="x">
+                                    <input id="yinput" type="hidden" name="y">
+                                    <input id="widthinput" type="hidden" name="width">
+                                    <input id="heightinput" type="hidden" name="height">
+                                    <div max_width=100%>
+                                        <img id="img_foto" style="visibility: hidden;max-width: 100%"
+                                            alt="Foto" />
+                                    </div>
+                                    <br/>
+                                        <div class="custom-file text-center">
+                                            <input type="file" class="custom-file-input" onchange="LoadImage(this)" id="foto" accept="image/*" name="foto">
+                                            <label class="custom-file-label" for="customFile">Alterar foto</label>
+                                        </div>
+                                </div>
+                                <div class="card-body">
+                                    <p class="card-text">
+                                        <label for="nome">Nome:</label>
+                                        <input type="text" class="form-control" id="nome" name="nome" placeholder="Nome da biblioteca" value="{{b.nome}}">
+                                    </p>
+                                    <p class="card-text">
+                                        <label for="comentario">Descrição</label>
+                                        <textarea class="form-control" id="comentario" name="comentario" rows="3">{{b.comentario}}</textarea>
+                                    </p>
+                                    <p class="card-text">
+                                        <label for="nome_bibliotecario">Bibliotecário responsável:</label>
+                                        <input type="text" class="form-control" id="nome_bibliotecario" name="nome_bibliotecario" placeholder="Nome do bibliotecario" value="{{b.nome_bibliotecario}}">
+                                    </p>
+                                    <div class="row">
+                                    <div class="col-sm">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="True" {% if b.independente %} checked  {% endif %} id="independente" name="independente">
+                                            <label class="form-check-label" for="independente">
+                                                Independente
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="True" {% if b.aquisicao_acervo %}  checked {% endif %} id="aquisicao_acervo" name="aquisicao_acervo">
+                                            <label class="form-check-label" for="aquisicao_acervo">
+                                                Acervo próprio?
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="True" {% if b.aberto_a_comunidade %} checked {% endif %} id="aberto_a_comunidade" name="aberto_a_comunidade">
+                                            <label class="form-check-label" for="aberto_a_comunidade">
+                                                Aberta a comunidade
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="True" {% if b.status %} checked {% endif %} id="status" name="status">
+                                            <label class="form-check-label" for="status">
+                                                Biblioteca ativa
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <br/>
+                                <h5>Características da biblioteca</h5>
+                                <br/>
+                                <div class="row">
+                                    <div class="col-sm">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" {% if b.recursos_opcionais.computador %} checked {% endif %} value="True" id="computador" name="computador">
+                                            <label class="form-check-label" for="computador">
+                                                Computadores
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="True" {% if b.recursos_opcionais.ar_condicionado %}  checked {% endif %} id="ar_condicionado" name="ar_condicionado">
+                                            <label class="form-check-label" for="ar_condicionado">
+                                                Ar-condicionado
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox"value="True" {% if b.recursos_opcionais.mesa_de_estudo %} checked {% endif %} id="mesa_de_estudo" name="mesa_de_estudo">
+                                            <label class="form-check-label" for="mesa_de_estudo">
+                                                Mesas de estudo
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="True"  {% if b.recursos_opcionais.empresta_livro %} checked {% endif %} id="empresta_livro" name="empresta_livro">
+                                            <label class="form-check-label" for="empresta_livro">
+                                                Empresta livros
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="True" {% if b.recursos_opcionais.wifi %} checked {% endif %} id="wifi" name="wifi">
+                                            <label class="form-check-label" for="wifi">
+                                                WIFI
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <br/>
+                                <h5>Endereço </h5>
+                                <br/>
+                                <div id="AlertCEP"></div>
+                                <div class="row">
+                                    <div class="col-sm-4">
+                                        <div class="form-group">
+                                            <label for="cep">CEP:</label>
+                                            <input onblur="pesquisacep(this.value);" type="text" class="form-control" value="{{b.endereco.cep}}" id="cep" name="cep" placeholder="00000-000">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm">
+                                        <div class="form-group">
+                                            <input type="hidden" name="rua" id="rua" type="text" name="rua" value="{{b.endereco.rua}}">
+                                            <label for="ruashow">Rua:</label>
+                                            <input disabled type="text" class="form-control" id="ruashow" placeholder="Rua" value="{{b.endereco.rua}}">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-4">
+                                        <div class="form-group">
+                                            <label for="numero">Número:</label>
+                                            <input type="text" class="form-control" id="numero" name="numero" placeholder="Número" value="{{b.endereco.numero}}">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm">
+                                        <div class="form-group">
+                                            <input type="hidden" name="bairro" id="bairro" type="text" name="bairro" value="{{b.endereco.bairro}}">
+                                            <label for="bairroshow">Bairro:</label>
+                                            <input type="text" disabled class="form-control" id="bairroshow" placeholder="Bairro" value="{{b.endereco.bairro}}">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm">
+                                        <div class="form-group">
+                                            <input type="hidden" name="cidade" id="cidade" type="text" name="cidade" value="{{b.endereco.cidade}}" >
+                                            <label for="cidadeshow">Cidade:</label>
+                                            <input disabled type="text" class="form-control" id="cidadeshow" placeholder="Cidade" value="{{b.endereco.cidade}}">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm">
+                                        <div class="form-group">
+                                        <input type="hidden" name="estado" id="estado" type="text" name="cidade" value="{{b.endereco.estado}}" >
+                                            <label for="cidadeshow">Estado:</label>
+                                            <input disabled type="text" class="form-control" id="estadoshow" placeholder="Estado" value="{{b.endereco.estado}}">
+                                    </div>
+                                </div>
+                                </div>
+                                <button type="submit" class="btn btn-success">Editar esta biblioteca</button>
+                            </form>
+                            </div>
+                        </div> 
+                    </div>
+                     <!--TAB ACERVO-->
+                    <br/>
+                    <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+                        <div class="card" style="margin-top: -23px">  
+                            <div class="card-body">
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="mx-auto" style="width: 500px;">
+                                            <h3 style="text-align:center">Lista de livros associados</h3>
+                                        </div>
+                                        {% if error_message and flag%}
+                                            <div class="alert alert-danger" role="alert">
+                                                {{error_message}}
+                                            </div>
+                                        {% endif %}
+                                    <button type="button" class="btn btn-dark" data-toggle="modal" data-target="#associarModal">Associar livro</button>
+                                    {% include 'biblioteca/biblioteca_associar_livro.html' %}
+                                    <hr>
+                                    {% if b.livroassociado_set.all %}
+                                        <table class="table table-striped">
+                                            <thead class="thead-dark">
+                                                    <tr> 
+                                                        <th scope="col">Nome</th>
+                                                        <th scope="col">Estado</th>
+                                                        <th scope="col">Num. de protocolo</th>
+                                                        <th scope="col" width="150px">Alterar status</th>
+                                                        <th scope="col" width="128px">Editar</th>
+                                                    </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for livro in b.livroassociado_set.all %}
+                                                <tr>
+                                                    <td>{{ livro.livro }}</td>
+                                                    
+                                                    {% if livro.estado == 5 %}
+                                                        <td>Péssimo</td>
+                                                    {% endif %}
+                                                    {% if livro.estado == 4 %}
+                                                        <td>Ruim</td>
+                                                    {% endif %}
+                                                    {% if livro.estado == 3 %}
+                                                        <td>Regular</td>
+                                                    {% endif %}
+                                                    {% if livro.estado == 2 %}
+                                                        <td>Bom</td>
+                                                    {% endif %}
+                                                    {% if livro.estado == 1 %}
+                                                        <td>Ótimo</td>
+                                                    {% endif %}
+                                                    {% if livro.estado == 0 %}
+                                                        <td>Excelente</td>
+                                                    {% endif %}
+                                                    
+                                                    <td>{{ livro.numero_protocolo }}</td>
+                                                    <td>
+                                                    {% if livro.status %}
+                                                        <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#mudarstatus-{{livro.id}}">Ativa</button>
+                                                    {% else %}
+                                                        <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#mudarstatus-{{livro.id}}">Desativada</button>
+                                                    {% endif %}
+                                                    {% include 'biblioteca/biblioteca_status_livroassociado.html' %}
+                                                    </td>
+                                                    <td><a href="#" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#editarLAModal-{{ livro.id }}" ><i class="fa fa-search" aria-hidden="true"></i> Visualizar</a></td>
+                                                    {% include 'biblioteca/biblioteca_editar_associacao.html' %}
+                                                </tr> 
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                        {% else %}
+                                            <div class="alert alert-danger text-center" role="alert">
+                                                Biblioteca sem acervo cadastrado
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>   
+                        </div>
+                    </div>                                    
+                </div> 
+            </div>
+        <!-- /onteúdo dinâmico -->
+    </div> 
+</main>
+{% include 'footer.html' %}
+{%if flag%}
+<script>
+$(document).ready(function(){
+    $('a[href="#profile"]').tab('show');
+});
+
+</script>
+{%endif%}
+</body>
+</html>

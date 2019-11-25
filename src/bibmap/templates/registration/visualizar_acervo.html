@@ -1,0 +1,86 @@
+{% load static %}
+{% include 'header.html' %}
+
+<div class="container" style="margin-top: 100px">
+    {%if messages%}
+    {% for message in messages %}
+    <div class="alert alert-{{message.tags}} text-center" role="alert">
+        {{message}}
+    </div>
+    {% endfor %}
+    {% endif %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="mx-auto">
+
+                {% if request.user.username|lower != userview.user.username|lower %}           
+                <h2 class="text-center">Acervo pessoal de {{userview.user.first_name|title}} {{userview.user.last_name|title}}</h2>
+                {% else %}
+                <h2 class="text-center">Seu acervo pessoal</h2>
+                {% endif %}
+
+                {% if request.user.username|lower == userview.user.username|lower %}
+                <a href="#"><button class="btn btn-dark" data-toggle="modal" data-target="#adicionarLivroModal">Adicionar Livro</button></a>
+                {% endif %}
+                {% include 'registration/adicionarLivro_modal.html' %}
+                
+                <hr>
+            </div>
+        </div>
+        
+        <div class="card-columns text-center" style="column-count: 1; margin-left: 15px;">
+            {% for l in livros_user %}
+            <div class="card" style="width: 17rem; padding: 0.1em">
+                <a href="{% url 'home:visualizarLivro' l.livro.id %}"><img src="{{ l.livro.capa.url }}" class="card-img-top" alt="Sem capa"
+                    style="width: 260px; height: 393px; padding: 1em"></a>
+                <div class="card-body">
+                    <h5 class="card-title">{{ l.livro.nome }}</h5>
+                    <p class="card-text">
+                        <p style="color: gray; font-size: 10pt; margin-bottom: 0em;">{{ l.livro.autor }}</p>
+                    </p>
+                    {% if l.estado == 5 %}
+                    <p class="card-text">
+                        <p style="color: gray; font-size: 10pt; margin-bottom: 0em;">Estado: Péssimo</p>
+                    </p>
+                    {% endif %}
+                    {% if l.estado == 4 %}
+                    <p class="card-text">
+                        <p style="color: gray; font-size: 10pt; margin-bottom: 0em;">Estado: Ruim</p>
+                    </p>
+                    {% endif %}
+                    {% if l.estado == 3 %}
+                    <p class="card-text">
+                        <p style="color: gray; font-size: 10pt; margin-bottom: 0em;">Estado: Regular</p>
+                    </p>
+                    {% endif %}
+                    {% if l.estado == 2 %}
+                    <p class="card-text">
+                        <p style="color: gray; font-size: 10pt; margin-bottom: 0em;">Estado: Bom</p>
+                    </p>
+                    {% endif %}
+                    {% if l.estado == 1 %}
+                    <p class="card-text">
+                        <p style="color: gray; font-size: 10pt; margin-bottom: 0em;">Estado: Ótimo</p>
+                    </p>
+                    {% endif %}
+                    {% if l.estado == 0 %}
+                    <p class="card-text">
+                        <p style="color: gray; font-size: 10pt; margin-bottom: 0em;">Estado: Excelente</p>
+                    </p>
+                    {% endif %}
+                    
+                    {% if request.user.username|lower == userview.user.username|lower %}
+                    <a href="" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#excluirLivroModal-{{l.id}}"><i class="fa fa-trash" aria-hidden="true"></i> Excluir</a>
+                    {% include 'registration/excluirLivro_modal.html' %}
+                    {% else %}
+                    <a href="{% url 'accounts:SelecionaTrocaDeLivro' l.id %}" class="btn btn-primary btn-sm"><i class="fa fa-book" aria-hidden="true"></i> Solicitar troca</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+    </div>
+</div>
+
+{% include 'footer.html' %}

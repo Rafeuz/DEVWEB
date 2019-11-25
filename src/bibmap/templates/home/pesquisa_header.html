@@ -1,0 +1,23 @@
+{% load static %}
+<div class="jumbotron text-center" style="background-image: url({% static 'img/library_img.jpg'%}); 
+    height: 400px; 
+    background-position: center; 
+    color: white">
+    <h1 class="display-4" style="margin-top: 0.5em"><img src="/assets/images/logo/biblogo_home.png" alt=""> <i class="fa fa-map-marker"></i></h1>
+    <p class="lead">Uma forma simples de buscar uma biblioteca mais próxima de você!</p>
+    <br/>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <form action="{%url 'home:Pesquisar' 1%}" method="get">
+                    <input type="text" name="search" class="form-control" id="pesquisa" placeholder="Pesquise por uma biblioteca ou livro" style="max-width: 580px; margin-left: auto; margin-right: auto">
+                    <input type="hidden" id="inputlat" name="lat">
+                    <input type="hidden" id="inputlng" name="lng">
+
+                    <br/>
+                    <button type="submite" class="btn btn-info"><i class="fa fa-search"></i> Pesquisar </button> <a href="{%url 'home:PaginaPesquisa'%}" role="button" class="btn btn-info"><i class="fa fa-search-plus"></i> Pesquisa avançada</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

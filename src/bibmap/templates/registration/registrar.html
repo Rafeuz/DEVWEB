@@ -1,0 +1,522 @@
+{% load static %}
+<script type="text/javascript" >
+    //Script para pegar endereco
+    var element;
+    function apagarCampos(){
+        document.getElementById('rua').value=("");
+            document.getElementById('ruashow').value=("");
+            document.getElementById('bairro').value=("");
+            document.getElementById('bairroshow').value=("");
+            document.getElementById('cidade').value=("");
+            document.getElementById('cidadeshow').value=("");
+            document.getElementById('estado').value=("");
+            document.getElementById('estadoshow').value=("");
+    }
+    function apagar() {
+        if ( document.getElementById('AlertCEP').childNodes[0].classList.contains('fadeOutUp') ){
+        document.getElementById('AlertCEP').innerHTML = "";} 
+        }
+    function callback(json) {
+        if (!("erro" in json)) {
+            //Atualiza os campos com os valores.
+            document.getElementById('rua').value=(json.logradouro);
+            document.getElementById('ruashow').value=(json.logradouro);
+            document.getElementById('bairro').value=(json.bairro);
+            document.getElementById('bairroshow').value=(json.bairro);
+            document.getElementById('cidade').value=(json.localidade);
+            document.getElementById('cidadeshow').value=(json.localidade);
+            document.getElementById('estado').value=(json.uf);
+            document.getElementById('estadoshow').value=(json.uf);
+            document.getElementById("numero").focus();
+            div = document.getElementById('AlertCEP').childNodes[0].classList;
+            element = document.getElementById('AlertCEP').childNodes[0];
+            div.remove('fadeInDown');
+            div.add('fadeOutUp');
+            element.addEventListener("animationend", apagar);
+            
+        }
+        else {
+            apagarCampos();
+            var div = document.getElementById('AlertCEP');
+            div.innerHTML = `<div class="alert alert-warning animated fadeInDown" role="alert">CEP não encontrado</div>`;
+        }
+    }
+        
+    function pesquisacep(valor) {
+
+        var cep = patternMask.unmaskedValue;
+        //Nova variável "cep" somente com dígitos.
+        //var cep = ;
+        //console.log(cep.lenght)
+        if (cep.length != 8) return;
+        if (cep.length == 8){
+            apagarCampos();
+        }
+        //Verifica se campo cep possui valor informado.
+        if (cep != "") {
+            //Expressão regular para validar o CEP.
+            var validacep = /^[0-9]{8}$/;
+
+            //Valida o formato do CEP.
+            if(validacep.test(cep)) {
+
+                //Cria um elemento javascript.
+                var script = document.createElement('script');
+
+                //Sincroniza com o callback.
+                script.src = 'https://viacep.com.br/ws/'+ cep + '/json/?callback=callback';
+
+                //Insere script no documento e carrega o conteúdo.
+                document.body.appendChild(script);
+
+            }
+            else {
+                apagarCampos();
+                var div = document.getElementById('AlertCEP');
+                div.innerHTML = `<div class="alert alert-warning fadeInDown" role="alert">Formato de CEP inválido</div>`;
+            }
+        }
+    };
+  //Função que obtem a imagem a ser enviada e visualiza no formulário
+  var flag = false;
+				var cropper;
+				//Função que obtem a imagem a ser enviada e visualiza no formulário
+				function sleep(ms) {
+				return new Promise(resolve => setTimeout(resolve, ms));
+				}
+				async function LoadImage(input){
+					if (readURL(input)){
+						await sleep(200);
+						var image = document.getElementById('img_foto');
+						if (flag){
+							cropper.destroy();
+						}
+						else{
+							flag = true;
+						}
+						createCropper();
+					}
+	
+				}
+				function readURL(input) {
+					if (input.files && input.files[0]) {
+					var reader = new FileReader();
+
+					reader.onload = function (e) {
+						$('#img_foto')
+						.attr('src', e.target.result)
+						.width(450);
+						//.height(197);
+					};
+					reader.readAsDataURL(input.files[0]);		
+					}
+					return true;
+				}
+				function createCropper() {
+					var image = document.getElementById('img_foto');
+					cropper = new Cropper(image, {
+					aspectRatio: 1 / 1,
+					viewMode: 3,
+					zoomable: false,
+					crop(event) {
+						console.log('-1');
+						$('#xinput').val(event.detail.x);
+						$('#yinput').val(event.detail.y);
+						$('#widthinput').val(event.detail.width);
+						$('#heightinput').val(event.detail.height);
+						console.log(event.detail.x);
+						console.log(event.detail.y);
+						console.log(event.detail.width);
+						console.log(event.detail.height);
+						console.log(event.detail.rotate);
+						console.log(event.detail.scaleX);
+						console.log(event.detail.scaleY);
+					},
+					});
+				}
+</script>
+<form method="POST" id="formcadastro" action="{%url 'accounts:createacc'%}{%if request.GET.next%}?next={{request.GET.next}}{%endif%}" enctype="multipart/form-data">
+    {%csrf_token%}
+    <div class="container"> 
+		<div class="row">
+			<div class="col-md-12">
+				<div class="modal fade" id="registrarModal">
+					<div class="modal-dialog modal-lm">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title">Cadastre-se</h5>
+				                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				                <span aria-hidden="true">&times;</span>
+				                </button>
+							</div>
+							<div class="modal-body">
+									{%if messages%}
+									{% for message in messages %}
+									<div class="alert alert-{{message.tags}} text-center" role="alert">
+										{{message}}
+									</div>
+									{% endfor %}
+									{% endif %}
+								<div class="row">
+									<div class="form-group">
+										<div class="col-sm">
+											<small>Preencha todos os dados abaixo para uma melhor experiência no site </small>
+										</div>
+									</div>
+								</div>
+			                    <div class="row">
+			                        <div class="col-sm">
+			                            <div class="form-group">
+			                                <label for="first_name">Nome:</label>
+			                                <input type="text" class="form-control" value="{{tentativa.nome}}" id="first_name" name="first_name" placeholder="Primeiro nome" required>
+			                            </div>
+			                        </div>
+			                        <div class="col-sm">
+			                             <div class="form-group">
+			                                <label for="last_name">Sobrenome:</label>
+			                                <input type="text" class="form-control" id="last_name" value="{{tentativa.sobrenome}}" name="last_name" placeholder="Sobrenome" required>
+			                            </div>
+			                        </div>
+			                    </div>
+			                    <div class="form-group">
+			                        <p  style="font-size: 12pt;">Sexo:</p>
+			                        <input type="radio" id="sexo" name="sexo" value="2" style="margin-left: 1em;" required>
+			                        <label for="sexo" style="font-size: 12pt;">Masculino</label>
+			                        <input type="radio" id="sexo" name="sexo" value="1" style="margin-left: 1em;" required>
+			                        <label for="sexo">Feminino</label>
+                    			</div>
+                    			<div class="row">
+			                        <div class="col-sm">
+			                            <div class="form-group">
+			                                <label for="email">Email:</label>
+			                                <input type="email" class="form-control" value="{{tentativa.email}}" id="email" name="email" placeholder="Seu email" required>
+			                            </div>
+			                        </div>
+			                         <div class="col-sm">
+			                             <div class="form-group">
+			                                <label for="email">Confirmar email:</label>
+			                                <input type="email" class="form-control" value="{{tentativa.email}}" id="emailconfirmacao" name="emailconfirmacao" placeholder="Confirme o Email" required>
+			                            </div>
+			                         </div>
+                     			</div>
+                     			<div class="form-group">
+			                        <label for="username">Login:</label>
+			                        <input type="text" class="form-control" id="username" name="username" value="{{tentativa.usuario}}" placeholder="Nome de usuário" required>
+			                    </div>
+			                    <div class="row">
+			                        <div class="col-sm">
+			                            <div class="form-group">
+			                                <label for="password">Senha:</label>
+			                                <input type="password" class="form-control" id="password" name="password" placeholder="Sua senha" required>
+			                            </div>
+			                        </div>
+			                        <div class="col-sm">
+			                            <div class="form-group">
+			                                <label for="password">Confirmar senha:</label>
+			                                <input type="password" class="form-control" id="passwordconfirmacao" name="passwordconfirmacao" placeholder="Confirmar Senha" required>
+			                            </div>
+			                        </div>
+			                        <br>
+			                    </div>
+			                    <div class="form-group text-center">
+			                        <label for="foto">Foto</label>
+			                        <br/>
+			                        <input id="xinput" type="hidden" name="x">
+									<input id="yinput" type="hidden" name="y">
+									<input id="widthinput" type="hidden" name="width">
+									<input id="heightinput" type="hidden" name="height">
+									<div max_width=100%>
+									<img id="img_foto" src="{% static 'img/no-profile.png' %}" style="max-width: 100%" alt="Foto"/>
+									</div>
+			                        <br/>
+			                        <br/>
+			                        <div class="custom-file text-center">
+			                            <input type="file" class="custom-file-input" onchange="LoadImage(this)" id="foto" accept="image/*" name="foto">
+			                            <label class="custom-file-label" for="customFile">Escolha um arquivo</label>
+			                        </div>
+			                    </div>
+			                    <div class="form-group">
+			                        <label for="telefone">Telefone:</label>
+			                        <input type="text" class="form-control" id="telefone" value="{{tentativa.telefone}}" name="telefone" placeholder="Telefone">
+			                    </div>
+			                    <div class="form-group">
+			                        <input type="hidden" name="genero" id="genero" type="text" name="genero" value="" >
+			                        <label for="generoshow">Genero preferido:</label>
+			                        <select class="form-control" id="generoshow" name="genero">
+			                            <option value="0">Ação</option>
+			                            <option value="1">Administração</option>
+			                            <option value="2">Aventura</option>
+			                            <option value="3">Arte</option>
+			                            <option value="4">Artesanato</option>
+			                            <option value="5">Autoajuda</option>
+			                            <option value="6">Biografia</option>
+			                            <option value="7">Ciência</option>
+			                            <option value="8">Computação</option>
+			                            <option value="9">Humor</option>
+			                            <option value="10">Direito</option>
+			                            <option value="11">Educação</option>
+			                            <option value="12">Didático</option>
+			                            <option value="13">Engenharia</option>
+			                            <option value="14">Erótico</option>
+			                            <option value="15">Esporte</option>
+			                            <option value="16">Ficção</option>
+			                            <option value="17">Gastronomia</option>
+			                            <option value="18">História</option>
+			                            <option value="29">Quadrinho</option>
+			                            <option value="20">Infantil</option>
+			                            <option value="21">Infantojuvenil</option>
+			                            <option value="22">LGBTQI+</option>
+			                            <option value="23">Literatura</option>
+			                            <option value="24">Medicina</option>
+			                            <option value="25">Policial</option>
+			                            <option value="26">Religião</option>
+			                            <option value="27">Romance</option>
+			                            <option value="28">Saúde</option>
+			                            <option value="29">Turismo</option>
+			                            <option value="30">Linguagem</option>
+			                        </select>
+			                    </div>
+			                    <div id="AlertCEP"></div>
+								<div class="row">
+								    <div class="col-sm-4">
+								        <div class="form-group">
+								            <label for="cep">CEP:</label>
+								            <input onblur="pesquisacep(this.value);" type="text" class="form-control" id="cep" name="cep" placeholder="00000-000">
+								        </div>
+								    </div>
+									    <div class="col-sm">
+									        <div class="form-group">
+									            <input type="hidden" name="rua" id="rua" type="text" name="rua" value="">
+									            <label for="ruashow">Rua:</label>
+									            <input disabled type="text" class="form-control" id="ruashow" placeholder="Rua">
+									        </div>
+									    </div>
+								</div>
+								<div class="row">
+		                            <div class="col-sm-4">
+		                                <div class="form-group">
+		                                    <label for="numero">Número:</label>
+		                                    <input type="text" class="form-control" id="numero" name="numero" placeholder="Número">
+		                                </div>
+		                            </div>
+		                            <div class="col-sm">
+		                                <div class="form-group">
+		                                    <input type="hidden" name="bairro" id="bairro" type="text" name="bairro" value="">
+		                                    <label for="bairroshow">Bairro:</label>
+		                                    <input type="text" disabled class="form-control" id="bairroshow" placeholder="Bairro">
+		                                </div>
+		                            </div>
+		                        </div>
+		                        <div class="row">
+		                            <div class="col-sm">
+		                                <div class="form-group">
+		                                    <input type="hidden" name="cidade" id="cidade" type="text" name="cidade" value="" >
+		                                    <label for="cidadeshow">Cidade:</label>
+		                                    <input disabled type="text" class="form-control" id="cidadeshow" placeholder="Cidade">
+		                                </div>
+		                            </div>
+		                            <div class="col-sm">
+		                                <div class="form-group">
+		                                    <input type="hidden" name="estado" id="estado" type="text" name="estado" value="" >
+		                                    <label for="estadoshow">Estado:</label>
+		                                    <select disabled class="form-control" id="estadoshow">
+		                                        <option value="AC">Acre</option>
+		                                        <option value="AL">Alagoas</option>
+		                                        <option value="AP">Amapá</option>
+		                                        <option value="AM">Amazonas</option>
+		                                        <option value="BA">Bahia</option>
+		                                        <option value="CE">Ceará</option>
+		                                        <option value="DF">Distrito Federal</option>
+		                                        <option value="ES">Espírito Santo</option>
+		                                        <option value="GO">Goiás</option>
+		                                        <option value="MA">Maranhão</option>
+		                                        <option value="MT">Mato Grosso</option>
+		                                        <option value="MS">Mato Grosso do Sul</option>
+		                                        <option value="MG">Minas Gerais</option>
+		                                        <option value="PA">Pará</option>
+		                                        <option value="PB">Paraíba</option>
+		                                        <option value="PR">Paraná</option>
+		                                        <option value="PE">Pernambuco</option>
+		                                        <option value="PI">Piauí</option>
+		                                        <option value="RJ">Rio de Janeiro</option>
+		                                        <option value="RN">Rio Grande do Norte</option>
+		                                        <option value="RS">Rio Grande do Sul</option>
+		                                        <option value="RO">Rondônia</option>
+		                                        <option value="RR">Roraima</option>
+		                                        <option value="SC">Santa Catarina</option>
+		                                        <option value="SP">São Paulo</option>
+		                                        <option value="SE">Sergipe</option>
+		                                        <option value="TO">Tocantins</option>
+		                                        <option value="EX">Estrangeiro</option>
+		                                    </select>
+		                                </div>
+		                            </div>
+		                        </div>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+								<button type="submit" class="btn btn-success">Cadastrar</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</form>
+
+<script src="https://unpkg.com/imask"></script>
+<script>
+var patternMask = IMask(
+	
+  document.getElementById('cep'),
+  {
+    mask: '00000-000'
+  });
+  var patternMask2 = IMask(
+	
+  document.getElementById('telefone'),
+  {
+    mask: '(00) 0000-000'
+  });
+</script>
+
+<script>
+
+function verificarSenha() {
+    var x = document.getElementsByName("passwordconfirmacao")[0];
+    if (x.value == document.getElementsByName("password")[0].value) {
+        var element = document.getElementById("infosenha");
+        element.classList.remove('animated', 'fadeInDown', 'fast');
+        element.classList.add('animated', 'fadeOutUp', 'fast');
+        element.addEventListener('animationend', function () {
+            element.parentNode.removeChild(element);
+        });
+    }
+    else {
+        if (!(!!document.getElementById("infosenha"))) {
+
+            x = x.parentElement.parentElement.parentElement;
+            console.log(x);
+            var info = document.createElement("div");
+            info.classList.add('alert', 'alert-danger', 'animated', 'fadeInDown', 'fast');
+            info.setAttribute('role', 'alert');
+            info.innerHTML = 'As senhas não coincidem';
+            info.id = "infosenha";
+            x.parentElement.insertBefore(info, x);
+        }
+    }
+}
+function verificarEmail() {
+    var x = document.getElementsByName("emailconfirmacao")[0];
+    if (String(x.value).toLowerCase() == String(document.getElementsByName("email")[0].value).toLowerCase()) {
+        var element = document.getElementById("infoemail");
+        element.classList.remove('animated', 'fadeInDown', 'fast');
+        element.classList.add('animated', 'fadeOutUp', 'fast');
+        element.addEventListener('animationend', function () {
+            element.parentNode.removeChild(element);
+        });
+    }
+    else {
+        if (!(!!document.getElementById("infoemail"))) {
+
+            x = x.parentElement.parentElement.parentElement;
+            var info = document.createElement("div");
+            info.classList.add('alert', 'alert-danger', 'animated', 'fadeInDown', 'fast');
+            info.setAttribute('role', 'alert');
+            info.innerHTML = 'Os emails não coincidem';
+            info.id = "infoemail";
+            x.parentElement.insertBefore(info, x);
+
+            //x.appendChild(info)
+        }
+    }
+}
+var e1 = document.getElementsByName("passwordconfirmacao")[0];
+e1.addEventListener("input", verificarSenha);
+var e2 = document.getElementsByName("emailconfirmacao")[0];
+e2.addEventListener("input", verificarEmail);
+var e3 = document.getElementById("formcadastro");
+e3.addEventListener("submit", event => {
+    var x = document.getElementsByName("emailconfirmacao")[0];
+    if (String(x.value).toLowerCase() == String(document.getElementsByName("email")[0].value).toLowerCase()) {
+        var y = document.getElementsByName("passwordconfirmacao")[0];
+        if (y.value == document.getElementsByName("password")[0].value) {
+            event.preventDefault();
+            var formData = new FormData();
+            var token = $('input[name="csrfmiddlewaretoken"]')[0];
+            if (typeof cropper != "undefined") {
+                cropper.getCroppedCanvas().toBlob(function (blob) {
+
+                    formData.append('first_name', $('#first_name').val());
+                    formData.append('last_name', $('#last_name').val());
+                    formData.append('sexo', $("input[name='sexo']:checked").val());
+                    formData.append('email', $("#email").val());
+                    formData.append('username', $("#username").val());
+                    formData.append('password', $("#password").val());
+                    formData.append('telefone', $("#telefone").val());
+                    formData.append('genero', $("#generoshow option:selected").val());
+                    formData.append('cep', $("#cep").val());
+                    formData.append('numero', $("#numero").val());
+                    formData.append('rua', $("#ruashow").val());
+                    formData.append('bairro', $("#bairroshow").val());
+                    formData.append('cidade', $("#cidadeshow").val());
+                    formData.append('estado', $("#estadoshow option:selected").val());
+                    formData.append('foto', blob);
+                    $.ajax({
+                        url: "{%url 'accounts:createacc' %}",
+                        headers: { "X-CSRFToken": token.value },
+                        method: "POST",
+                        data: formData,
+                        processData: false,
+                        //contentType: 'multipart/form-data',
+                        contentType: false,
+                        enctype: 'multipart/form-data',
+                        success: function (data) {
+                            window.location.href = data;
+                        },
+                        error: function () {
+                            console.log('Upload error');
+                        }
+                    });
+
+                });
+
+            }
+            else {
+                formData.append('first_name', $('#first_name').val());
+                formData.append('last_name', $('#last_name').val());
+                formData.append('sexo', $("input[name='sexo']:checked").val());
+                formData.append('email', $("#email").val());
+                formData.append('username', $("#username").val());
+                formData.append('password', $("#password").val());
+                formData.append('telefone', $("#telefone").val());
+                formData.append('genero', $("#generoshow option:selected").val());
+                formData.append('cep', $("#cep").val());
+                formData.append('numero', $("#numero").val());
+                formData.append('rua', $("#ruashow").val());
+                formData.append('bairro', $("#bairroshow").val());
+                formData.append('cidade', $("#cidadeshow").val());
+                formData.append('estado', $("#estadoshow option:selected").val()); $.ajax({
+                    url: "{%url 'accounts:createacc'%}",
+                    headers: { "X-CSRFToken": token.value },
+                    method: "POST",
+                    data: formData,
+                    processData: false,
+                    //contentType: 'multipart/form-data',
+                    contentType: false,
+                    enctype: 'multipart/form-data',
+                    success: function (data) {
+                        window.location.href = data;
+                    },
+                    error: function () {
+                        console.log('Upload error');
+                    }
+                });
+
+            }
+        }
+    }
+
+	});
+</script>

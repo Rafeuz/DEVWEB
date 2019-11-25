@@ -1,0 +1,85 @@
+{% load static %} {% include 'header.html' %}
+<div style="margin-top: 80px; padding: 1em;">
+    {%if messages%} {% for message in messages %}
+    <div class="alert alert-{{message.tags}} text-center" role="alert">
+        {{message}}
+    </div>
+    {% endfor %} {% endif %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="mx-auto">
+                <h1 class="text-center">Solicitação de troca de livros</h1>
+                <hr>
+                <div class="row">
+                    <div class="col-md-4" style="text-center">
+                        <h3 class="text-center">Meu acervo {{request.user.LivroUsuario}}</h3>
+                        <div class="card-columns text-center" style="column-count: 1;">
+                            {% for livro in request.user.perfil.livrousuario_set.all %}
+                            <div class="card" style="width: 10rem; padding: 0.1em">
+                                <a href="{% url 'home:visualizarLivro' livro.livro.id %}">
+                                    <img src="{% static ''%}{{livro.livro.capa}}" class="card-img" alt="Sem capa" style="width: 154px; height: 196px; padding: 1em 1em 0 1em;">
+                                </a>
+                                <div class="card-body">
+                                    <div class="card-title" style="height: 15px">
+                                        <a href="{% url 'home:visualizarLivro' livro.livro.id %}">{{livro.livro.nome}}</a>
+                                    </div>
+                                    <br/>
+                                    <a href="{% url 'accounts:SolicitaTrocaDeLivro' livro.id livro_solicitado.id %}" class="btn btn-info btn-sm"><i class="fa fa-book" aria-hidden="true"></i> Adicionar</a>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <h3 class="text-center">Contato do livro selecionado</h3>
+                        <div class="card">
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item"><b>Nome:</b> {{livro_solicitado.perfil}}</li>
+                                <li class="list-group-item"><b>Email:</b> {{livro_solicitado.perfil.user.email}}</li>
+                                <li class="list-group-item"><b>Telefone:</b> {{livro_solicitado.perfil.telefone}}</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <h3 class="text-center">Livro selecionado</h3>
+                        <div class="card">
+                            <div class="row no-gutters">
+                                <div class="col-md-12">
+                                    <div class="card-body">
+                                        <img src="{% static ''%}{{livro_solicitado.livro.capa}}" class="card-img" alt="Sem capa">
+                                        <br/><br/>
+                                        <h4 class="card-title">{{livro_solicitado.livro.nome}}</h4>
+                                        <p class="card-text">{{livro_solicitado.livro.resumo|slice:300}}...</p>
+                                        <h5 style="margin-top:0.6em">Dados do livro</h5>
+                                        <table class="table table-striped table-dark" style="margin-top: 0.4em;">
+                                            <tbody>
+                                                <tr>
+                                                    <td>Autor(es):</td>
+                                                    <td>{{livro_solicitado.livro.autor}}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Edtora:</td>
+                                                    <td>{{livro_solicitado.livro.editora}}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Gênero:</td>
+                                                    <td>
+                                                        {% for item in livro_solicitado.livro.genero_choices %} {% if livro_solicitado.livro.genero == item.0 %}{{item.1}}{% endif %} {% endfor %}
+                                                    </td>
+                                                </tr>
+                                                <td>ISBN:</td>
+                                                <td>{{livro_solicitado.livro.isbn_10}}, {{llivro_solicitado.ivro.isbn_13}}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% include 'footer.html' %}

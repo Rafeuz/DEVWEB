@@ -1,0 +1,187 @@
+{% load static %}
+<script>
+function GetDataISBN(isbn){
+        var element;
+        var script = document.createElement('script');
+        script.src = 'https://www.googleapis.com/books/v1/volumes?callback=GetInfo&q=isbn:' + isbn;
+        document.body.appendChild(script);
+    }
+    function apagar() {
+        
+            var div = document.getElementById('Alerta');
+            div.innerHTML=""
+            element.removeEventListener("animationend", apagar);
+        
+        }
+    function trocar() {
+        if ( document.getElementById('Alerta').childNodes[0].classList.contains('fadeInDown') ){
+            document.getElementById('linkfoto').value=("");
+            var div = document.getElementById('Alerta').childNodes[0].classList;
+            div.remove('fadeInDown');
+            div.add('fadeOutUp', 'delay-3s');
+            element.removeEventListener("animationend", trocar);
+            element.addEventListener("animationend", apagar);
+        } 
+        }
+    function GetInfo(booksInfo){
+        if (booksInfo.totalItems > 0){
+            var livroInfo = booksInfo.items[0];
+            document.getElementById('editora').value=(livroInfo.volumeInfo.publisher);
+            document.getElementById('nome').value=(livroInfo.volumeInfo.title);
+            var thumb = livroInfo.volumeInfo.imageLinks.thumbnail;
+            thumb = thumb.replace("zoom=1", "zoom=0");
+            document.getElementById('linkfoto').value=(thumb);
+            document.getElementById('img_foto').width=(450);
+            document.getElementById('img_foto').src=(thumb);
+            for (identificador in livroInfo.volumeInfo.industryIdentifiers){
+                console.log(livroInfo.volumeInfo.industryIdentifiers[identificador]);
+                if (livroInfo.volumeInfo.industryIdentifiers[identificador].type=="ISBN_13"){
+                    document.getElementById('isbn_13').value=(livroInfo.volumeInfo.industryIdentifiers[identificador].identifier);
+                }
+                if (livroInfo.volumeInfo.industryIdentifiers[identificador].type=="ISBN_10"){
+                    document.getElementById('isbn_10').value=(livroInfo.volumeInfo.industryIdentifiers[identificador].identifier);
+                }
+            }
+
+            document.getElementById('Autores').value=(livroInfo.volumeInfo.authors.join(';'));
+            document.getElementById('resumo').value=(livroInfo.volumeInfo.description);
+            
+            
+        }
+        else{
+            var div = document.getElementById('Alerta');
+                div.innerHTML = `<div class="alert alert-warning animated fadeInDown" style="text-align:center" role="alert">Não encontramos resultados para seu livro :(<br>Por Favor preencha manualmente</div>`;
+                element = document.getElementById('Alerta').childNodes[0];
+                element.addEventListener("animationend", trocar);
+                
+                
+                
+        }
+    }
+//Função que obtem a imagem a ser enviada e visualiza no formulário
+  function readURL(input) {
+	if (input.files && input.files[0]) {
+        document.getElementById('linkfoto').value="";
+	  var reader = new FileReader();
+
+	  reader.onload = function (e) {
+		$('#img_foto')
+		  .attr('src', e.target.result)
+		  .width(450)
+		  //.height(197);
+
+	  };
+	  reader.readAsDataURL(input.files[0]);
+	}
+  }
+</script>
+<div class="modal fade" id="cadastrarModal" tabindex="-1" role="dialog" aria-labelledby="cadastrarModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cadastrar um novo livro</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+            </div>
+            <div class="modal-body">
+                <form action="{% url 'livro:Adicionar' %}" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" id="linkfoto" name="linkfoto" value="">
+
+                    <div class="form-group text-center">
+                            <label for="foto">Foto</label>
+                            <br/>
+                            <img id="img_foto" src="{% static 'img/no-photos.png' %}" alt="Foto" />
+                            <br/>
+                            <br/>
+                            <div class="custom-file text-center">
+                                <input type="file" class="custom-file-input" onchange="readURL(this)" id="foto" accept="image/*" name="foto">
+                                <label class="custom-file-label" for="customFile">Escolha um arquivo</label>
+                            </div>
+                        </div>
+                        <div id="Alerta"></div>
+                    <div class="form-group">
+                         <label for="isbn_10">ISBN 10:</label>
+                         <input type="text" onblur="GetDataISBN(this.value);" class="form-control" id="isbn_10" name="isbn_10" placeholder="ISBN">
+                     </div>
+                    <div class="form-group">
+                        <label for="isbn_13">ISBN 13:</label>
+                        <input type="text" onblur="GetDataISBN(this.value);" class="form-control" id="isbn_13" name="isbn_13" placeholder="ISBN 13">
+                    </div>
+                    <div class="form-group">
+                        <label for="nome">Nome:</label>
+                        <input type="text" class="form-control" id="nome" name="nome" placeholder="Nome do livro">
+                    </div>
+                    <div class="input_fields_wrap">
+                        <div>
+
+                            <div class="form-group">
+                                <label for="Autores">Autores (Separados por ;):</label>
+                                <input type="text" class="form-control" id="Autores" name="Autores" placeholder="Autores" value="{{livro.autor}}">
+                                
+                            </div>
+                            
+                        </div>
+                        
+                    </div>
+                    <div class="row" style="margin-bottom: 1em;">
+                    <div class="col-sm">
+    
+                    </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="editora">Editora:</label>
+                        <input type="text" class="form-control" id="editora" name="editora" placeholder="Nome da editora do livro">
+                    </div>
+                    <div class="form-group">
+                        <input type="hidden" name="genero" id="genero" type="text" name="genero">
+                        <label for="generoshow">Genero:</label>
+                        <select class="form-control" name="genero" id="generoshow">
+                            <option value="0">Ação</option>
+                            <option value="1">Administração</option>
+                            <option value="2">Aventura</option>
+                            <option value="3">Arte</option>
+                            <option value="4">Artesanato</option>
+                            <option value="5">Autoajuda</option>
+                            <option value="6">Biografia</option>
+                            <option value="7">Ciência</option>
+                            <option value="8">Computação</option>
+                            <option value="9">Humor</option>
+                            <option value="10">Direito</option>
+                            <option value="11">Educação</option>
+                            <option value="12">Didático</option>
+                            <option value="13">Engenharia</option>
+                            <option value="14">Erótico</option>
+                            <option value="15">Esporte</option>
+                            <option value="16">Ficção</option>
+                            <option value="17">Gastronomia</option>
+                            <option value="18">História</option>
+                            <option value="19">Quadrinhos</option>
+                            <option value="20">Infantil</option>
+                            <option value="21">Infanto-juvenil</option>
+                            <option value="22">LGBTQI+</option>
+                            <option value="23">Literatura</option>
+                            <option value="24">Medicina</option>
+                            <option value="25">Policial</option>
+                            <option value="26">Religião</option>
+                            <option value="27">Romance</option>
+                            <option value="28">Saúde</option>
+                            <option value="29">Turismo</option>
+                            <option value="30">Linguagem</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        
+                        <label for="resumoshow">Resumo:</label>
+                        <textarea id="resumo" name="resumo" rows="5" cols="33" class="form-control" placeholder="Resumo do livro"></textarea>
+                    </div>
+            </div>
+            <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                    <button type="submit" class="btn btn-success">Cadastrar</button>
+            </div>
+             </form>
+        </div>
+    </div>
+</div>

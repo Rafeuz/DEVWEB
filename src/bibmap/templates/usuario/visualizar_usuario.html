@@ -1,0 +1,351 @@
+{% load static %}
+{% include 'header.html' %}
+<script>
+     function callback(json) {
+        if (!("erro" in json)) {
+            //Atualiza os campos com os valores.
+            document.getElementById('rua').value=(json.logradouro);
+            document.getElementById('ruashow').value=(json.logradouro);
+            document.getElementById('bairro').value=(json.bairro);
+            document.getElementById('bairroshow').value=(json.bairro);
+            document.getElementById('cidade').value=(json.localidade);
+            document.getElementById('cidadeshow').value=(json.localidade);
+            document.getElementById('estado').value=(json.uf);
+            document.getElementById('estadoshow').value=(json.uf);
+            div = document.getElementById('AlertCEP');
+            div.innerHTML = "";
+        }
+        else {
+            div = document.getElementById('AlertCEP');
+            div.innerHTML = `<div class="alert alert-warning" role="alert">CEP não encontrado</div>`;
+        }
+    }
+
+    function pesquisacep(valor) {
+
+        //Nova variável "cep" somente com dígitos.
+        var cep = valor;
+        cep = cep.replace("-", "");
+        //Verifica se campo cep possui valor informado.
+        if (cep != "") {
+
+            //Expressão regular para validar o CEP.
+            var validacep = /^[0-9]{8}$/;
+
+            //Valida o formato do CEP.
+            if(validacep.test(cep)) {
+
+                //Cria um elemento javascript.
+                var script = document.createElement('script');
+
+                //Sincroniza com o callback.
+                script.src = 'https://viacep.com.br/ws/'+ cep + '/json/?callback=callback';
+
+                //Insere script no documento e carrega o conteúdo.
+                document.body.appendChild(script);
+
+            }
+            else {
+                var div = document.getElementById('AlertCEP');
+                div.innerHTML = `<div class="alert alert-warning" role="alert">Formato de CEP inválido</div>`;
+            }
+        }
+    };
+    var flag = false;
+				var cropper;
+				//Função que obtem a imagem a ser enviada e visualiza no formulário
+				function sleep(ms) {
+				return new Promise(resolve => setTimeout(resolve, ms));
+				}
+				async function LoadImage(input){
+					if (readURL(input)){
+						await sleep(500);
+						var image = document.getElementById('img_foto');
+						if (flag){
+							cropper.destroy();
+						}
+						else{
+							flag = true;
+						}
+						createCropper();
+					}
+	
+				}
+				function readURL(input) {
+					if (input.files && input.files[0]) {
+					var reader = new FileReader();
+
+					reader.onload = function (e) {
+						$('#img_foto')
+						.attr('src', e.target.result)
+						.width(450);
+						//.height(197);
+					};
+					reader.readAsDataURL(input.files[0]);		
+					}
+					return true;
+				}
+				function createCropper() {
+					var image = document.getElementById('img_foto');
+					cropper = new Cropper(image, {
+					aspectRatio: 1 / 1,
+					viewMode: 3,
+					zoomable: false,
+					crop(event) {
+						$('#xinput').val(event.detail.x);
+						$('#yinput').val(event.detail.y);
+						$('#widthinput').val(event.detail.width);
+						$('#heightinput').val(event.detail.height);
+						console.log(event.detail.x);
+						console.log(event.detail.y);
+						console.log(event.detail.width);
+						console.log(event.detail.height);
+						console.log(event.detail.rotate);
+						console.log(event.detail.scaleX);
+						console.log(event.detail.scaleY);
+					},
+					});
+				}
+
+</script>
+{% if success_message %}
+    <div class="alert alert-success" role="alert">
+        {{success_message}}
+    </div>
+{% elif error_message %}
+    <div class="alert alert-danger" role="alert">
+        {{error_message}}
+    </div>
+{% endif %}
+<form id="formview" action="{%url "usuario:SalvarEditarUsuario" perfilEdit.id %}" method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <main role="main">
+        {% include 'menu_admin.html' %}
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <h2 style="text-align: center;">{{ perfilEdit.user.first_name }} {{  perfilEdit.user.last_name }}</h2>
+                    <ul class="nav nav-tabs" id="myTab" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Dados de Usuário</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card mb-3">
+                <div class="row no-gutters">
+                    <div class="col-md-4">
+                            <input id="xinput" type="hidden" name="x">
+                            <input id="yinput" type="hidden" name="y">
+                            <input id="widthinput" type="hidden" name="width">
+                            <input id="heightinput" type="hidden" name="height">
+                            <div>
+                                <img id="img_foto"  src="{{ perfilEdit.foto.url }}" class="card-img" alt="Sem imagem" style="padding: 1em;max-width: 100%"
+                                    alt="Foto" />
+                            </div>
+                        <div class="form-group text-center">
+                            <label for="foto">Alterar foto</label>
+                            <div class="custom-file text-center">
+                                <input type="file" class="custom-file-input" onchange="LoadImage(this)" id="foto" accept="image/*" name="foto">
+                                <label class="custom-file-label" style="width: 93%; margin-left: 1em" for="customFile">Escolha um arquivo</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <p class="card-text">
+                               <div class="row">
+                        <div class="col-sm">
+                            <div class="form-group">
+                                <label for="first_name">Nome:</label>
+                                <input type="text" class="form-control" id="first_name" name="first_name" placeholder="Primeiro nome" value="{{ perfilEdit.user.first_name }}" required>
+                            </div>
+                        </div>
+                        <div class="col-sm">
+                             <div class="form-group">
+                                <label for="last_name">Sobrenome:</label>
+                                <input type="text" class="form-control" id="last_name" name="last_name" placeholder="Sobrenome" value="{{ perfilEdit.user.last_name }}" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <p  style="font-size: 12pt;">Sexo:</p>
+                        {% if perfilEdit.sexo == 2 %}
+                            <input type="radio" id="sexo" name="sexo" value="2" checked style="margin-left: 1em;" required>
+                            <label for="sexo" style="font-size: 12pt;">Masculino</label>
+                             <input type="radio" id="sexo" name="sexo" value="1" style="margin-left: 1em;" required>
+                            <label for="sexo">Feminino</label>
+                        {% else %}
+                            <input type="radio" id="sexo" name="sexo" value="2" style="margin-left: 1em;" required>
+                            <label for="sexo" style="font-size: 12pt;">Masculino</label>
+                            <input type="radio" id="sexo" name="sexo" value="1" checked style="margin-left: 1em;" required>
+                            <label for="sexo">Feminino</label>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email:</label>
+                        <input type="email" class="form-control" id="email" name="email" placeholder="Email do usuário" value="{{ perfilEdit.user.email }}" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm">
+                            <div class="form-group">
+                                <label for="username">Login:</label>
+                                <input type="text" class="form-control" id="username" name="username" placeholder="nome de usuário" value="{{ perfilEdit.user.username }}" required>
+                            </div>
+                        </div>
+                        <div class="col-sm">
+                            <div class="form-group">
+                                <label for="password">Nova Senha:</label>
+                                <input type="password" class="form-control" id="password" name="password" placeholder="Senha do usuário" value="">
+                            </div>
+                        </div>
+                        <br>
+                    </div>
+                    <div class="form-group">
+                        <label for="grupo">Tipo:</label>
+                        <select class="form-control" id="grupo" name="grupo">
+                                {%for grupo in perfilEdit.grupos_possiveis%}
+                                {%if grupo.0 == perfilEdit.grupo%}
+                                <option value="{{grupo.0}}" selected>{{grupo.1}}</option>
+                                {%else%}
+                                <option value="{{grupo.0}}">{{grupo.1}}</option>
+                                {%endif%}
+                                {%endfor%}
+                        </select>
+                    </div>
+                     <div class="form-group">
+                        <label for="telefone">Telefone:</label>
+                        <input type="text" class="form-control" id="telefone" name="telefone" placeholder="Telefone do usuário" value="{{ perfilEdit.telefone.numero }}">
+                    </div>
+                    <div class="form-group">
+                        <input type="hidden" name="genero" id="genero" type="text" name="genero" value="" >
+                        <label for="generoshow">Genero preferido:</label>
+                        <select class="form-control" id="generoshow" name="genero">
+                            {%for genero in lista_de_genero.genero_choices%}
+                            {%if genero.0 == lista_de_genero.tipo%}
+                            <option value="{{genero.0}}" selected>{{genero.1}}</option>
+                            {%else%}
+                            <option value="{{genero.0}}">{{genero.1}}</option>
+                            {%endif%}
+                            {%endfor%}
+                            
+                        </select>
+                    </div>
+                    <div id="AlertCEP"></div>
+                     <div class="row">
+                         <div class="col-sm-4">
+                                <div class="form-group">
+                                    <label for="cep">CEP:</label>
+                                    <input onblur="pesquisacep(this.value);" type="text" class="form-control" id="cep" name="cep" placeholder="00000-000" value="{{ perfilEdit.endereco.cep }}">
+                                </div>
+                            </div>
+                            <div class="col-sm">
+                                <div class="form-group">
+                                    <input type="hidden" name="rua" id="rua" type="text" name="rua"  value="{{ perfilEdit.endereco.rua }}">
+                                    <label for="ruashow">Rua:</label>
+                                    <input  type="text" disabled class="form-control" id="ruashow" placeholder="Rua"  value="{{ perfilEdit.endereco.rua }}" >
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <label for="numero">Número:</label>
+                                    <input type="text" class="form-control" id="numero" name="numero" placeholder="Número"  value="{{ perfilEdit.endereco.numero }}">
+                                </div>
+                            </div>
+                            <div class="col-sm">
+                                <div class="form-group">
+                                    <input type="hidden" name="bairro" id="bairro" type="text" name="bairro"  value="{{perfilEdit.endereco.bairro}}">
+                                    <label for="bairroshow">Bairro:</label>
+                                    <input type="text" disabled class="form-control" id="bairroshow" placeholder="Bairro" value="{{perfilEdit.endereco.bairro}}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm">
+                                <div class="form-group">
+                                    <input type="hidden" name="cidade" id="cidade" type="text" name="cidade"  value="{{ perfilEdit.endereco.cidade }}" >
+                                    <label for="cidadeshow">Cidade:</label>
+                                    <input  type="text" disabled class="form-control" id="cidadeshow" placeholder="Cidade"  value="{{ perfilEdit.endereco.cidade }}">
+                                </div>
+                            </div>
+                            <div class="col-sm">
+                                <div class="form-group">
+                                    <input type="hidden" name="estado" id="estado" type="text" name="estado"  value="{{perfilEdit.endereco.estado}}">
+                                    <label for="estadoshow">Estado:</label>
+                                    <select disabled class="form-control" id="estadoshow">
+                                        <option value="AC" {%if perfilEdit.endereco.estado == 'AC'%} selected {%endif%}>Acre</option>
+                                        <option value="AL" {%if perfilEdit.endereco.estado == 'AL'%} selected {%endif%}>Alagoas</option>
+                                        <option value="AP" {%if perfilEdit.endereco.estado == 'AP'%} selected {%endif%}>Amapá</option>
+                                        <option value="AM" {%if perfilEdit.endereco.estado == 'AM'%} selected {%endif%}>Amazonas</option>
+                                        <option value="BA" {%if perfilEdit.endereco.estado == 'BA'%} selected {%endif%}>Bahia</option>
+                                        <option value="CE" {%if perfilEdit.endereco.estado == 'CE'%} selected {%endif%}>Ceará</option>
+                                        <option value="DF" {%if perfilEdit.endereco.estado == 'DF'%} selected {%endif%}>Distrito Federal</option>
+                                        <option value="ES" {%if perfilEdit.endereco.estado == 'ES'%} selected {%endif%}>Espírito Santo</option>
+                                        <option value="GO" {%if perfilEdit.endereco.estado == 'BA'%} selected {%endif%}>Goiás</option>
+                                        <option value="MA" {%if perfilEdit.endereco.estado == 'MA'%} selected {%endif%}>Maranhão</option>
+                                        <option value="MT" {%if perfilEdit.endereco.estado == 'MT'%} selected {%endif%} >Mato Grosso</option>
+                                        <option value="MS" {%if perfilEdit.endereco.estado == 'MS'%} selected {%endif%}>Mato Grosso do Sul</option>
+                                        <option value="MG" {%if perfilEdit.endereco.estado == 'MG'%} selected {%endif%}>Minas Gerais</option>
+                                        <option value="PA" {%if perfilEdit.endereco.estado == 'PA'%} selected {%endif%}>Pará</option>
+                                        <option value="PB" {%if perfilEdit.endereco.estado == 'PB'%} selected {%endif%}>Paraíba</option>
+                                        <option value="PR" {%if perfilEdit.endereco.estado == 'PR'%} selected {%endif%}>Paraná</option>
+                                        <option value="PE" {%if perfilEdit.endereco.estado == 'PE'%} selected {%endif%}>Pernambuco</option>
+                                        <option value="PI" {%if perfilEdit.endereco.estado == 'PI'%} selected {%endif%}>Piauí</option>
+                                        <option value="RJ" {%if perfilEdit.endereco.estado == 'RJ'%} selected {%endif%}>Rio de Janeiro</option>
+                                        <option value="RN" {%if perfilEdit.endereco.estado == 'RN'%} selected {%endif%}>Rio Grande do Norte</option>
+                                        <option value="RS" {%if perfilEdit.endereco.estado == 'RS'%} selected {%endif%}>Rio Grande do Sul</option>
+                                        <option value="RO" {%if perfilEdit.endereco.estado == 'RO'%} selected {%endif%}>Rondônia</option>
+                                        <option value="RR" {%if perfilEdit.endereco.estado == 'RR'%} selected {%endif%}>Roraima</option>
+                                        <option value="SC" {%if perfilEdit.endereco.estado == 'SC'%} selected {%endif%}>Santa Catarina</option>
+                                        <option value="SP" {%if perfilEdit.endereco.estado == 'SP'%} selected {%endif%}>São Paulo</option>
+                                        <option value="SE" {%if perfilEdit.endereco.estado == 'SE'%} selected {%endif%}>Sergipe</option>
+                                        <option value="TO" {%if perfilEdit.endereco.estado == 'TO'%} selected {%endif%}>Tocantins</option>
+                                        <option value="EX" {%if perfilEdit.endereco.estado == 'EX'%} selected {%endif%}>Estrangeiro</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                                <button type="submit" class="btn btn-success">Editar esse usuário</button>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</form>
+ {% include 'footer.html' %}
+ <script>
+    $("#formview").submit(function(event) {
+        var formData = new FormData();
+        var token = $('input[name="csrfmiddlewaretoken"]')[0];
+        if (typeof cropper != "undefined"){
+            cropper.getCroppedCanvas().toBlob(function (blob) {
+                formData.append('foto', blob);
+                $.ajax({
+                    url: "{%url 'usuario:AlterarFoto' perfilEdit.id%}", 
+                    headers: { "X-CSRFToken": token.value }, 
+                    method: "POST",
+                    data: formData,
+                    processData: false,
+                    //contentType: 'multipart/form-data',
+                    contentType: false,
+                    enctype: 'multipart/form-data',
+                    success: function (data) {
+                        console.log('ok');
+                    },
+        error: function () {
+          event.preventDefault();
+        }
+      });
+    
+            });
+            
+        }
+        
+    });
+     </script>
+</body>
+</html>

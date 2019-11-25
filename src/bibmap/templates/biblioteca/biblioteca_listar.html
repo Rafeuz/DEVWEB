@@ -1,0 +1,111 @@
+{% load static %}
+{% include 'header.html' %}
+<main role="main">
+    <!-- Menu do admin -->
+    {% include 'menu_admin.html' %}
+    <!-- /Menu do admin -->
+    <div class="container">
+        <!-- Conteúdo dinâmico -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="mx-auto" style="width: 400px;">
+                    <h3 style="text-align:center">Lista de bibliotecas</h3>
+                </div>
+                <button id="buttonmodal" type="button" class="btn btn-dark" data-toggle="modal" data-target="#cadastrarModal">Cadastrar biblioteca</button>
+                {% include 'biblioteca/biblioteca_form.html' %}
+                <hr>
+                {%if messages%}
+                {% for message in messages %}
+                <div class="alert alert-{{message.tags}} text-center" role="alert">
+                    {{message}}
+                </div>
+                {% endfor %}
+                {% endif %}
+                {% if b %}
+                    <table class="table table-striped">
+                        <thead class="thead-dark"> 
+                            <tr>
+                            <th scope="col">Nome</th>
+                            <th scope="col">Endereço</th>
+                            <th scope="col" width="128px">Alterar status</th>
+                            <th scope="col" width="128px">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for biblioteca in b %}
+                            <tr>
+                                <td>{{biblioteca.nome}}</td>
+                                <td>{{biblioteca.endereco}} </td>
+                                <td>
+                                    {% if biblioteca.status %}
+                                        <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#mudarstatus-{{biblioteca.id}}">Ativa</button>
+                                    {% else %}
+                                        <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#mudarstatus-{{biblioteca.id}}">Desativada</button>
+                                    {% endif %}
+                                    <!-- Modal alterar status -->
+                                    {% include 'biblioteca/biblioteca_alterar_status.html' %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'biblioteca:ListarSingle' biblioteca.id %}" class="btn btn-primary btn-sm"><i class="fa fa-search" aria-hidden="true"></i> Visualizar</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% endif %}
+            </div> 
+        </div>
+        <!-- /onteúdo dinâmico -->
+    </div> 
+</main>
+{% include 'footer.html' %}
+<script src="https://unpkg.com/imask"></script>
+<script>
+var patternMask = IMask(
+  document.getElementById('cep'),
+  {
+    mask: '00000-000'
+  });
+</script>
+
+<script>
+
+$("#cadastrarModal").on('shown.bs.modal', function(e){
+   mymap.invalidateSize();
+});
+    var mymap = L.map('map').setView([-5.811148, -35.204347], 15);
+    //L.tileLayer('http://tile.stamen.com/toner/{z}/{x}/{y}.png', {
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery provided by © <a href="https://www.openstreetmap.org">OpenStreetMap</a>',
+    maxZoom: 18,
+    }).addTo(mymap);
+    var myMarker = L.AwesomeMarkers.icon({
+                    icon: 'street-view',
+                    markerColor: 'blue',
+                    prefix: 'fa',
+                    iconColor: 'white'
+                });
+    var marker;
+    mymap.on('click', function(event){
+        marker.setLatLng(event.latlng);
+        marker.bindPopup("Minha biblioteca está aqui").openPopup();
+        $("#lat").val(event.latlng.lat);
+        $("#lng").val(event.latlng.lng);
+    });
+    $( document ).ready(function() {
+            marker = L.marker([9000,9000],{icon:myMarker}).addTo(mymap);   
+            // Try HTML5 geolocation.
+            if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                var pos = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude
+                };
+                     
+                mymap.setView([pos.lat, pos.lng], 15)        
+            });
+            }
+        });
+</script>
+</body>
+</html>

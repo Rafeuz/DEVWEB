@@ -1,0 +1,77 @@
+.menu-admin {
+    margin-top: 5em;
+    background-color: rgb(250, 250, 250);
+    border-radius: 5px;
+    padding: 0.5em;
+    margin-bottom: 1em;
+}
+
+body {
+    background-color: #ecf0f1;
+}
+
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 0;
+    background-color: #000;
+}
+
+.btn-info {
+    color: #fff;
+    background-color: #AE8428;
+    border-color: #AE8428;
+}
+
+.btn-info:hover {
+    color: #fff;
+    background-color: #8C6922;
+    border-color: #8C6922;
+}
+
+.btn-info:focus,
+.btn-info.focus {
+    box-shadow: 0 0 0 0.2rem rgba(153, 116, 14, 0.5);
+}
+
+.btn-info.disabled,
+.btn-info:disabled {
+    color: #fff;
+    background-color: #a79d12;
+    border-color: #b89317;
+}
+
+.btn-info:not(:disabled):not(.disabled):active,
+.btn-info:not(:disabled):not(.disabled).active,
+.show>.btn-info.dropdown-toggle {
+    color: #fff;
+    background-color: #b49d1b;
+    border-color: #7f6510;
+}
+
+.btn-info:not(:disabled):not(.disabled):active:focus,
+.btn-info:not(:disabled):not(.disabled).active:focus,
+.show>.btn-info.dropdown-toggle:focus {
+    box-shadow: 0 0 0 0.2rem rgba(170, 147, 16, 0.5);
+}
+
+.card {
+    position: relative;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    min-width: 0;
+    word-wrap: break-word;
+    background-color: #fff;
+    background-clip: border-box;
+    border: 1px solid rgba(0, 0, 0, 0.125);
+    border-radius: 0.25rem;
+}
+
+body{
+    background-image: url('/assets/img/aplicação2.png');
+}

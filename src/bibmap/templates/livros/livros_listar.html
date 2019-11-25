@@ -1,0 +1,59 @@
+{% load static %}
+{% include 'header.html' %}
+<main role="main">
+    <!-- Menu do admin -->
+    {% include 'menu_admin.html' %}
+    <!-- /Menu do admin -->
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="mx-auto" style="width: 400px;">
+                    <h3 style="text-align:center">Lista de livros</h3>
+                </div>
+            </div> 
+        </div>
+        <button type="button" class="btn btn-dark" data-toggle="modal" data-target="#cadastrarModal">Cadastrar livro</button>
+               {% include 'livros/cadastro_livro.html' %}
+                <hr>
+                {% if success_message %}
+                    <div class="alert alert-success text-center" role="alert">
+                        {{success_message}}
+                    </div>
+                {% elif error_message or error_message2 %}
+                    <div class="alert alert-danger text-center" role="alert">
+                        {{error_message}} {{error_message2}}
+                    </div>
+                {% endif %}
+                <div class="card-columns text-center" style="column-count: 1;">
+                    {% for livro in livros %}
+                        <div class="card" style="width: 17rem; padding: 0.1em">
+                        <img src="{{livro.capa.url}}" class="card-img-top" alt="Sem capa" style="width: 260px; height: 393px; padding: 1em">
+                        <div class="card-body">
+                            <h5 class="card-title">{{livro.nome|slice:":22"}}</h5>
+                            <p class="card-text">
+                                <p style="color: gray; font-size: 10pt; margin-bottom: 0em;">
+                                    {% for autor in livro.Autores %}
+                                        [ {{autor}} ]
+                                    {% endfor %}
+                                </p>
+                            </p>
+                            <a href="{% url 'livro:ListarSingle' livro.id %}" class="btn btn-primary btn-sm"><i class="fa fa-search" aria-hidden="true"></i> Visualizar</a>
+                            {% if livro.status %}
+                                    <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#mudarstatus-{{livro.id}}">Ativo</button>
+                                {% else %}
+                                    <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#mudarstatus-{{livro.id}}">Desativado</button>
+                                {% endif %}
+                                <!-- Modal alterar status -->
+                            {% include 'livros/livro_alterar_status.html' %}
+                        </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div> 
+        </div>
+    </div> 
+</main>
+{% include 'footer.html' %}
+</body>
+</html>
+{% include 'livros/form_dinamico.html' %}

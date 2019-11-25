@@ -1,0 +1,172 @@
+{% load static %}
+{% include 'header.html' %}
+<div class="container" style="margin-top: 100px">
+    {%if messages%}
+    {% for message in messages %}
+    <div class="alert alert-{{message.tags}} text-center" role="alert">
+        {{message}}
+    </div>
+    {% endfor %}
+    {% endif %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                <div class="mx-auto">       
+                    <h1 class="text-center">Minhas trocas de livro</h1>            
+                    <hr>
+                        <h3>Solicitações de troca</h3>
+                        <br/>
+                        <table class="table table-striped">
+                            <thead class="thead-dark">
+                                <tr>
+                                <th scope="col" width="30%">Meu livro</th>
+                                <th scope="col" width="30%">Livro a ser trocado</th>
+                                <th scope="col" width="25%">Status</th>
+                                <th scope="col" width="15%">Visualizar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for troca in lista_de_trocas %}
+                                    {% if troca.confirmacao == None %}
+                                        <tr>
+                                            <td>
+                                                {% if troca.livro_solicitante.perfil == request.user.perfil %}
+                                                    {{troca.livro_solicitante.livro}}
+                                                {% else %}
+                                                    {{troca.livro_solicitado.livro}}
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if troca.livro_solicitante.perfil == request.user.perfil %}
+                                                    {{troca.livro_solicitado.livro}}
+                                                {% else %}
+                                                    {{troca.livro_solicitante.livro}}
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                            {% if troca.confirmacao == None %}
+                                                Pendente de confirmação
+                                            {% elif troca.confirmacao %}
+                                                Troca realizada
+                                            {% else %}
+                                                Troca rejeitada
+                                            {% endif %}
+                                            </td>
+                                            <td>
+                                                <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#visualizar-troca-{{troca.id}}">
+                                                    <i class="fa fa-search" aria-hidden="true"></i> Visualizar troca
+                                                </button>
+                                                {% include "accounts/visualizar_troca_modal.html" %}
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        <br/>
+                        <h3>Trocas realizadas</h3>
+                        <br/>
+                        <table class="table table-striped">
+                            <thead class="thead-dark">
+                                <tr>
+                                <th scope="col" width="30%">Meu livro</th>
+                                <th scope="col" width="30%">Livro a ser trocado</th>
+                                <th scope="col" width="25%">Status</th>
+                                <th scope="col" width="15%">Visualizar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for troca in lista_de_trocas %}
+                                    {% if troca.confirmacao %}
+                                        <tr>
+                                            <td>
+                                                {% if troca.livro_solicitante.perfil == request.user.perfil %}
+                                                    {{troca.livro_solicitante.livro}}
+                                                {% else %}
+                                                    {{troca.livro_solicitado.livro}}
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if troca.livro_solicitante.perfil == request.user.perfil %}
+                                                    {{troca.livro_solicitado.livro}}
+                                                {% else %}
+                                                    {{troca.livro_solicitante.livro}}
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                            {% if troca.confirmacao == None %}
+                                                Pendente de confirmação
+                                            {% elif troca.confirmacao %}
+                                                Troca realizada
+                                            {% else %}
+                                                Troca rejeitada
+                                            {% endif %}
+                                            </td>
+                                            <td>
+                                                <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#visualizar-troca-{{troca.id}}">
+                                                    <i class="fa fa-search" aria-hidden="true"></i> Visualizar troca
+                                                </button>
+                                                {% include "accounts/visualizar_troca_modal.html" %}
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        <br/>
+                        <h3>Trocas rejeitadas</h3>
+                        <br/>
+                        <table class="table table-striped">
+                            <thead class="thead-dark">
+                                <tr>
+                                <th scope="col" width="30%">Meu livro</th>
+                                <th scope="col" width="30%">Livro a ser trocado</th>
+                                <th scope="col" width="25%">Status</th>
+                                <th scope="col" width="15%">Visualizar</th> 
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for troca in lista_de_trocas %}
+                                    {% if troca.confirmacao == False %}
+                                        <tr>
+                                            <td>
+                                                {% if troca.livro_solicitante.perfil == request.user.perfil %}
+                                                    {{troca.livro_solicitante.livro}}
+                                                {% else %}
+                                                    {{troca.livro_solicitado.livro}}
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if troca.livro_solicitante.perfil == request.user.perfil %}
+                                                    {{troca.livro_solicitado.livro}}
+                                                {% else %}
+                                                    {{troca.livro_solicitante.livro}}
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                            {% if troca.confirmacao == None %}
+                                                Pendente de confirmação
+                                            {% elif troca.confirmacao %}
+                                                Troca realizada
+                                            {% else %}
+                                                Troca rejeitada
+                                            {% endif %}
+                                            </td>
+                                            <td>
+                                                <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#visualizar-troca-{{troca.id}}">
+                                                    <i class="fa fa-search" aria-hidden="true"></i> Visualizar troca
+                                                </button>
+                                                {% include "accounts/visualizar_troca_modal.html" %}
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% include 'footer.html' %}

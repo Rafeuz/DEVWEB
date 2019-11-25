@@ -1,0 +1,33 @@
+{% load static %}
+{% include 'header.html' %}
+<main role="main">
+    <!-- Bloco de pesquisa -->
+    {% include 'home/pesquisa_header.html' %}
+    <!-- / Bloco de pesquisa -->
+    <div class="container">
+        <!-- Conteúdo dinâmico -->
+        <div class="row">
+            <div class="col-md-12">
+                <h1 class="display-5">Bibliotecas</h1>
+                <hr/>
+                <div class="card-columns" style="column-count: 1;">
+                    {% for biblioteca in bibliotecas %}
+                        <div class="card" style="width: 17rem; padding: 0.1em; height: 380px">
+                            <a href="{% url 'home:visualizarBiblioteca' biblioteca.id %}">
+                                <div style="background-image: url({% static ''%}{{biblioteca.foto}}); background-size: cover; height: 200px; width: 200; background-position: center; margin: 1em 1em 0 1em"></div>
+                            </a>
+                            <div class="card-body">
+                                <h5 class="card-title" style="height: 50px"> <a href="{% url 'home:visualizarBiblioteca' biblioteca.id %}">{{ biblioteca.nome }}</a></h5>
+                                <p class="card-text">
+                                    {{ biblioteca.endereco.rua }} - {{ biblioteca.endereco.bairro }} / {{ biblioteca.endereco.cidade }}
+                                </p>
+                            </div>
+                        </div> 
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% include 'footer.html' %}
+    </body>
+</html>

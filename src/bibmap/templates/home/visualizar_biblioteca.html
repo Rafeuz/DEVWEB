@@ -1,0 +1,219 @@
+
+{% load l10n %} <!-- Para campos decimais com . em vez de ,-->
+{% load static %}
+{% include 'header.html' %}
+<main role="main">
+    <!-- Bloco de pesquisa -->
+    {% include 'home/pesquisa_header.html' %}
+    <!-- / Bloco de pesquisa -->
+    <div class="container">
+        <!-- Conteúdo dinâmico -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card" style="
+                padding: 1em;
+                ">
+                    <div class="card bg-dark text-white" style="border: 0px">
+                        <img src="{% static ''%}{{ biblioteca.foto }}" class="card-img" alt="Sem imagem">
+                        <div class="card-img-overlay text-center">
+                            <div style="
+                            background-color: white;
+                            opacity: 0.8;
+                            color: black;
+                            border-radius: 8px;
+                            margin-left: auto;
+                            margin-right: auto;
+                            padding: 0.5em;
+                            ">
+                            <h1>{{ biblioteca.nome }}</h1>
+                            <p class="card-text">{{ biblioteca.endereco }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm">
+                            <h2 style="margin-top:0.6em">Descrição</h2>
+                            <p class="lead"> {{biblioteca.comentario}} </p>
+                             <h2>Bibliotecário responsável</h2>
+                            <p class="lead"> {{biblioteca.nome_bibliotecario}} </p>
+                        </div>
+                        <div class="col-sm">
+                        <h2 style="margin-top:0.6em">Dados da biblioteca</h2>
+                            <table class="table table-striped table-dark" style="margin-top: 0.4em;">
+                                <thead>
+                                    <tr>
+                                    <th scope="col">Característica</th>
+                                    <th scope="col">Situação</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Independente</td>
+                                        <td>
+                                            {% if biblioteca.independente %}
+                                                <button type="button" class="btn btn-primary btn-sm">Sim</button>
+                                            {% else %}
+                                                <button type="button" class="btn btn-danger btn-sm">Não</button>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Acervo próprio</td>
+                                        <td>
+                                            {% if biblioteca.aquisicao_acervo %}
+                                                <button type="button" class="btn btn-primary btn-sm">Sim</button>
+                                            {% else %}
+                                                <button type="button" class="btn btn-danger btn-sm">Não</button>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Aberto a comunidade</td>
+                                        <td>
+                                            {% if biblioteca.aberto_a_comunidade %}
+                                                <button type="button" class="btn btn-primary btn-sm">Sim</button>
+                                            {% else %}
+                                                <button type="button" class="btn btn-danger btn-sm">Não</button>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Computadores</td>
+                                        <td>
+                                            {% if biblioteca.recursos_opcionais.computador %}
+                                                <button type="button" class="btn btn-primary btn-sm">Sim</button>
+                                            {% else %}
+                                                <button type="button" class="btn btn-danger btn-sm">Não</button>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Mesas de estudo</td>
+                                        <td>
+                                            {% if biblioteca.recursos_opcionais.mesa_de_estudo %}
+                                                <button type="button" class="btn btn-primary btn-sm">Sim</button>
+                                            {% else %}
+                                                <button type="button" class="btn btn-danger btn-sm">Não</button>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>WIFI</td>
+                                        <td>
+                                            {% if biblioteca.recursos_opcionais.wifi %}
+                                                <button type="button" class="btn btn-primary btn-sm">Sim</button>
+                                            {% else %}
+                                                <button type="button" class="btn btn-danger btn-sm">Não</button>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Ar-condicionado</td>
+                                        <td>
+                                            {% if biblioteca.recursos_opcionais.ar_condicionado %}
+                                                <button type="button" class="btn btn-primary btn-sm">Sim</button>
+                                            {% else %}
+                                                <button type="button" class="btn btn-danger btn-sm">Não</button>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Empresta livros</td>
+                                        <td>
+                                            {% if biblioteca.recursos_opcionais.empresta_livro %}
+                                                <button type="button" class="btn btn-primary btn-sm">Sim</button>
+                                            {% else %}
+                                                <button type="button" class="btn btn-danger btn-sm">Não</button>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>   
+                </div>
+                <br/>
+                {% if livros_associados %}
+                    <div class="card">
+                        <div class="card-body">
+                            <h3 class="card-title">Acervo ({{livros_associados|length}}) com um total de {{quantidade_livros}} livros</h3>
+                            <div class="card-columns" style="column-count: 1; margin-top: 0.5em">
+                            {% for livro in livros_associados %}
+                                <div class="card" style="width: 260px; padding: 0.1em">
+                                    <a href="{% url 'home:visualizarLivro' livro.livro.id %}">
+                                        <img src="{{livro.livro.capa.url}}" class="card-img-top" alt="Sem capa" style="width: 250px; height: 378px; padding: 1em 1em 0 1em;">
+                                    </a>
+                                    <div class="card-body">
+                                        <h5 class="card-title" style="height: 50px"> <a href="#">{{livro.livro.nome}}</a>
+                                        <p style="color: gray; font-size: 10pt; margin-bottom: 0em; margin-top: 0.4em">
+                                                {{livro.livro.autor}}
+                                        </p>
+                                        </h5>
+                                        <br>
+                                        <p class="card-text" style="color: gray; font-size: 10pt; margin-bottom: 0em;"> Quantidade: {{livro.LivroCount}}</a>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                            </div>        
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="card">
+                        <div class="card-body">
+                            <h3 class="card-title">Esta biblioteca não possui acervo cadastrado</h3>
+                        </div>
+                    </div>
+                {% endif %}
+                <br/>
+                <div class="card">
+                    <div class="card-body" style="height: 600px">
+                        <h3 class="card-title">Localização</h3>
+                        <div id="map" style="height: 500px; border-radius: 5px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% include 'footer.html' %}
+    <script>
+            var mymap = L.map('map').setView([-5.811148, -35.204347], 18);
+
+            //L.tileLayer('http://tile.stamen.com/toner/{z}/{x}/{y}.png', {
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery provided by © <a href="https://www.openstreetmap.org">OpenStreetMap</a>',
+            maxZoom: 18,
+            }).addTo(mymap);
+            var redMarker = L.AwesomeMarkers.icon({
+                icon: 'book-reader',
+                markerColor: 'red',
+                prefix: 'fa',
+                iconColor: 'white'
+            });
+                
+            {%for biblioteca in bibmap%}
+            var marker = L.marker([{{biblioteca.latitude|unlocalize}}, {{biblioteca.longitude|unlocalize}}],{icon: redMarker}).addTo(mymap);
+            marker.bindPopup(`<b>{{biblioteca}}</b>`).openPopup();
+            mymap.setView([{{biblioteca.latitude|unlocalize}}, {{biblioteca.longitude|unlocalize}}], 12);
+            {%endfor%}
+            $( document ).ready(function() {
+                    // Try HTML5 geolocation.
+                    if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                        var pos = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                        };
+                        var myMarker = L.AwesomeMarkers.icon({
+                            icon: 'street-view',
+                            markerColor: 'blue',
+                            prefix: 'fa',
+                            iconColor: 'white'
+                        });
+                        var marker = L.marker([pos.lat, pos.lng],{icon: myMarker}).addTo(mymap);
+                        marker.bindPopup("<b>Você está aqui</b>").openPopup();
+                    });
+                    }
+                });
+        </script>
+    </body>
+</html>

@@ -1,0 +1,94 @@
+{% load static %}
+{% include 'header.html' %}
+<script>
+function readURL(input) {
+	if (input.files && input.files[0]) {
+	  var reader = new FileReader();
+
+	  reader.onload = function (e) {
+		$('#img_foto')
+		  .attr('src', e.target.result)
+		  //.width(250)
+		  //.height(197);
+	  };
+	  reader.readAsDataURL(input.files[0]);
+	}
+  }
+</script>
+ {% if success_message %}
+    <div class="alert alert-success" role="alert">
+        {{success_message}}
+    </div>
+{% elif error_message %}
+    <div class="alert alert-danger" role="alert">
+        {{error_message}}
+    </div>
+{% endif %}
+<form action="{%url "livro:Editar" livro.id %}" method="POST" enctype="multipart/form-data">
+{% csrf_token %}
+    <main role="main">
+        {% include 'menu_admin.html' %}
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <h2 style="text-align: center;">{{ livro.nome }}</h2>
+                </div>
+            </div>
+            <div class="card mb-3">
+                <div class="row no-gutters">
+                        <div class="col-md-4">
+                        <img id="img_foto" src="{{ livro.capa.url }}" class="card-img" alt="Sem capa" style="padding: 1em">
+                        <div class="form-group text-center">
+                                <label for="foto">Alterar foto</label>
+                                <div class="custom-file text-center">
+                                    <input type="file" class="custom-file-input" onchange="readURL(this)" id="foto" accept="image/*" name="foto">
+                                    <label class="custom-file-label" style="width: 93%; margin-left: 1em" for="customFile">Escolha um arquivo</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                        <div class="card-body">
+                            <p class="card-text">
+                                <label for="nome">Nome:</label>
+                                <input type="text" class="form-control" id="nome" name="nome" placeholder="Nome do livro" value="{{livro.nome}}">
+                                <div class="form-group">
+                                <label for="Autores">Autores (Separados por ;):</label>
+                                <input type="text" class="form-control" id="Autores" name="Autores" placeholder="Autores" value="{{livro.autor}}">
+                                </div>
+                                <p class="card-text">
+                                    <label for="editora">Editora:</label>
+                                    <input type="text" class="form-control" id="editora" name="editora" placeholder="Nome da editora do livro" value="{{livro.editora}}">
+                                </p>
+                                <div class="form-group">
+                                    <input type="hidden" name="genero" id="genero" type="text" name="genero" value="{{ livro.genero }}">
+                                    <label for="generoshow">Genero:</label>
+                                    <select class="form-control" id="generoshow" name="genero">
+                                    {%for item in livro.genero_choices%}
+                                    <option value="{{item.0}}" {%if livro.genero == item.0 %}selected {%endif%}> {{item.1}} </option>
+                                    {%endfor%}
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="isbn_10">ISBN 10:</label>
+                                    <input type="text" class="form-control" id="isbn_10" name="isbn_10" placeholder="ISBN" value="{{ livro.isbn_10 }}">
+                                </div>
+                                    <div class="form-group">
+                                    <label for="isbn_13">ISBN 13:</label>
+                                    <input type="text" class="form-control" id="isbn_13" name="isbn_13" placeholder="ISBN 13" value="{{ livro.isbn_13 }}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="resumo">Resumo:</label>
+                                    <textarea id="resumo" name="resumo" rows="5" cols="33" class="form-control" placeholder="Resumo do livro">{{ livro.resumo }}</textarea>
+                                </div>
+                                <button type="submit" class="btn btn-success">Editar esse Livro</button>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</form>
+{% include 'footer.html' %}
+</body>
+</html>

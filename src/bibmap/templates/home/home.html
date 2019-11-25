@@ -1,0 +1,142 @@
+{% load static %} {% load l10n %}
+<!-- Para campos decimais com . em vez de ,-->
+{% include 'header.html' %}
+<main role="main">
+    <!-- Bloco de pesquisa -->
+    {% include 'home/pesquisa_header.html' %}
+    <!-- / Bloco de pesquisa -->
+    <div class="container">
+        <!-- Conteúdo dinâmico -->
+        <div class="row">
+            <div class="col-md-12">
+                <h1 class="display-5">Mapa de bibliotecas</h1>
+                <hr>
+                <div id="map" style="height: 500px; border-radius: 5px;"></div>
+
+                <br>
+                <a href="{% url 'home:listarBibliotecas'%}">
+                    <h1 class="display-5">Bibliotecas em destaque</h1>
+                </a>
+                <hr/>
+                <div class="card-columns" style="column-count: 1;">
+                    {% for biblioteca in ultimas_bibliotecas %}
+                    <div class="card" style="width: 17rem; padding: 0.1em; height: 380px">
+                        <a href="{% url 'home:visualizarBiblioteca' biblioteca.id %}">
+                            <div style="background-image: url({% static ''%}{{biblioteca.foto}}); background-size: cover; height: 200px; width: 200; background-position: center; margin: 1em 1em 0 1em"></div>
+                        </a>
+                        <div class="card-body">
+                            <h5 class="card-title" style="height: 50px"> <a href="{% url 'home:visualizarBiblioteca' biblioteca.id %}">{{ biblioteca.nome }}</a></h5>
+                            <p class="card-text">
+                                {{ biblioteca.endereco.rua }} - {{ biblioteca.endereco.bairro }} / {{ biblioteca.endereco.cidade }}
+                            </p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <a href="{% url 'home:listarLivros'%}">
+                    <h1 class="display-5">Livros sugeridos</h1>
+                </a>
+                <hr/>
+                <div class="card-columns" style="column-count: 1;">
+                    {% for livro in livros_aleatorios %}
+                    <div class="card" style="width: 17rem; padding: 0.1em">
+                        <a href="{% url 'home:visualizarLivro' livro.id %}">
+                            <img src="{% static ''%}{{livro.capa}}" class="card-img-top" alt="Sem capa" style="width: 260px; height: 393px; padding: 1em 1em 0 1em;">
+                        </a>
+                        <div class="card-body">
+                            <h5 class="card-title" style="height: 50px"> <a href="#">{{livro.nome}}</a>
+                                <p style="color: gray; font-size: 10pt; margin-bottom: 0em; margin-top: 0.4em">
+                                    {{livro.autor}}
+                                </p>
+                            </h5>
+                            <br/>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% if perfil.GetRandomBooks|length > 3 %}
+                <a href="{% url 'home:listarLivros'%}">
+                    <h1 class="display-5">Livros sobre {{perfil.GetGeneroFavorito}}</h1>
+                </a>
+                <hr/>
+                <div class="card-columns" style="column-count: 1;">
+                    {% for livro in perfil.GetRandomBooks %}
+                    <div class="card" style="width: 17rem; padding: 0.1em">
+                        <a href="{% url 'home:visualizarLivro' livro.id %}">
+                            <img src="{% static ''%}{{livro.capa}}" class="card-img-top" alt="Sem capa" style="width: 260px; height: 393px; padding: 1em 1em 0 1em;">
+                        </a>
+                        <div class="card-body">
+                            <h5 class="card-title" style="height: 50px"> <a href="{% url 'home:visualizarLivro' livro.id %}">{{livro.nome}}</a>
+                                <p style="color: gray; font-size: 10pt; margin-bottom: 0em; margin-top: 0.4em">
+                                    {{livro.autor}}
+                                </p>
+                            </h5>
+                            <br/>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {%endif%}
+            </div>
+        </div>
+    </div>
+    {% include 'footer.html' %}
+    <script>
+        var mymap = L.map('map').setView([-5.811148, -35.204347], 18);
+
+        //L.tileLayer('http://tile.stamen.com/toner/{z}/{x}/{y}.png', {
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery provided by © <a href="https://www.openstreetmap.org">OpenStreetMap</a>',
+            maxZoom: 18,
+        }).addTo(mymap);
+        var redMarker = L.AwesomeMarkers.icon({
+            icon: 'book-reader',
+            markerColor: 'red',
+            prefix: 'fa',
+            iconColor: 'white'
+        });
+
+        {% for biblioteca in bibmap %}
+        var marker = L.marker([{
+            {
+                biblioteca.latitude | unlocalize
+            }
+        }, {
+            {
+                biblioteca.longitude | unlocalize
+            }
+        }], {
+            icon: redMarker
+        }).addTo(mymap);
+        marker.bindPopup(`<a href="bibliotecas/{{biblioteca.id}}"><b>{{biblioteca}}</b></a>`).openPopup(); 
+        {% endfor %}
+        mymap.setView([-5.8732, -35.1899], 12);
+        $(document).ready(function() {
+            // Try HTML5 geolocation.
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    var pos = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+                    var myMarker = L.AwesomeMarkers.icon({
+                        icon: 'street-view',
+                        markerColor: 'blue',
+                        prefix: 'fa',
+                        iconColor: 'white'
+                    });
+                    mymap.setView([pos.lat, pos.lng], 16);
+                    var marker = L.marker([pos.lat, pos.lng], {
+                        icon: myMarker
+                    }).addTo(mymap);
+                    marker.bindPopup("<b>Você está aqui</b>").openPopup();
+                    $("#inputlat").val(pos.lat);
+                    $("#inputlng").val(pos.lng);
+
+                });
+            }
+        });
+    </script>
+    </body>
+
+    </html>

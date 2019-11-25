@@ -1,0 +1,35 @@
+{% load static %}
+{% include 'header.html' %}
+<main role="main">
+    <!-- Bloco de pesquisa -->
+    {% include 'home/pesquisa_header.html' %}
+    <!-- / Bloco de pesquisa -->
+    <div class="container">
+        <!-- Conteúdo dinâmico -->
+        <div class="row">
+            <div class="col-md-12">
+                <h1 class="display-5">Livros</h1>
+                <hr/>
+                <div class="card-columns" style="column-count: 1;">
+                    {% for livro in livros %}
+                        <div class="card" style="width: 17rem; padding: 0.1em">
+                            <a href="{% url 'home:visualizarLivro' livro.id %}">
+                                <img src="{% static ''%}{{livro.capa}}" class="card-img-top" alt="Sem capa" style="width: 260px; height: 393px; padding: 1em 1em 0 1em;">
+                            </a>
+                            <div class="card-body">
+                                <h5 class="card-title" style="height: 50px"> <a href="{% url 'home:visualizarLivro' livro.id %}">{{livro.nome}}</a>
+                                    <p style="color: gray; font-size: 10pt; margin-bottom: 0em; margin-top: 0.4em">
+                                            {{livro.autor}}
+                                    </p>
+                                </h5>
+                                <br/>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% include 'footer.html' %}
+    </body>
+</html>

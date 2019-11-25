@@ -1,0 +1,362 @@
+{% load static %} {% include 'header.html' %}
+<div class="container" style="margin-top: 100px">
+    {%if messages%} {% for message in messages %}
+    <div class="alert alert-{{message.tags}} text-center" role="alert">
+        {{message}}
+    </div>
+    {% endfor %} {% endif %}
+    <div class="row">
+        <div class="col-sm-3">
+            <div class="card text-center">
+                <div class="card-header">
+                    Foto
+                </div>
+                <div class="card-body">
+                    <img id="profilepic" src="{{perfil.foto.url}}" class="rounded-circle" width="100px" height="100px" style="margin: 1em">
+                    <br>
+                    <button type="button" class="card-title btn btn-info btn-sm" data-toggle="modal" data-target="#modificarfoto"><i class="fa fa-edit"></i> Alterar foto</button>
+                    <h3 class="card-title">{{perfil.user.username}}</h3>
+                    <hr>
+                    <a href="{% url 'accounts:paginaAcervo' %}" class="btn btn-info"><i class="fa fa-book"></i> Acervo pessoal</a>
+                    <hr>
+                    <a href="{% url 'accounts:TrocasDeLivros' %}" class="btn btn-info"><i class="fa fa-exchange-alt"></i> Troca de livros</a>
+                </div>
+                <div class="card-footer text-muted">
+                    Desde {{perfil.data_de_registro|date:"d F, Y"}}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-content">
+                    <div class="card-header">
+                        Altere seus dados
+                    </div>
+                    <div class="card-body">
+                        <form action="{% url 'accounts:editar' %}" method="POST" enctype="multipart/form-data">
+                            {%csrf_token %}
+                            <div class="row">
+                                <div class="form-group col-md-6">
+                                    <label>Email</label>
+                                    <input type="text" readonly class="form-control" id="staticEmail" value="{{perfil.user.email}}">
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label>Telefone</label>
+                                    <input type="text" class="form-control" name="telefone" placeholder="(00) 00000-0000" id="Telefone" value="{{perfil.telefone}}">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-6">
+                                    <label>Mudar senha</label>
+                                    <input type="password" class="form-control" placeholder="Sua senha" name="senha" id="staticEmail" value="">
+                                </div>
+
+                                <div class="form-group col-md-6">
+                                    <label for="genero">Genero Preferido</label>
+                                    <select class="form-control" id="generoshow" name="genero">
+				                            {%for genero in perfil.GetFavGeneros.0.genero_choices%}
+											{%if genero.0 == perfil.GetFavGeneros.0.tipo%}
+											<option value="{{genero.0}}" selected>{{genero.1}}</option>
+											{%else%}
+											<option value="{{genero.0}}">{{genero.1}}</option>
+											{%endif%}
+											{%endfor%}
+                            
+				                        </select>
+                                </div>
+                            </div>
+                            <div id="AlertCEP"></div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="cep">CEP</label>
+                                    <input onkeyup="pesquisacep(this.value);" type="text" value="{{perfil.endereco.cep}}" class="form-control" id="cep" name="cep" placeholder="00000-000">
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="hidden" name="rua" id="rua" type="text" name="rua" value="{{perfil.endereco.rua}}">
+                                    <label for="ruashow">Rua</label>
+                                    <input disabled type="text" class="form-control" value="{{perfil.endereco.rua}}" id="ruashow" placeholder="Rua">
+                                </div>
+                            </div>
+                            <div class="row" style="margin-top: 10px">
+                                <div class="col-md-6">
+                                    <label for="numero">Número</label>
+                                    <input type="text" class="form-control" id="numero" name="numero" value="{{perfil.endereco.numero}}" placeholder="Número">
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="hidden" name="bairro" id="bairro" type="text" name="bairro" value="{{perfil.endereco.bairro}}">
+                                    <label for="bairroshow">Bairro</label>
+                                    <input type="text" disabled class="form-control" id="bairroshow" value="{{perfil.endereco.bairro}}" placeholder="Bairro">
+                                </div>
+                            </div>
+                            <div class="row" style="margin-top: 10px">
+                                <div class="col-md-6">
+                                    <input type="hidden" name="cidade" id="cidade" type="text" name="cidade" value="{{perfil.endereco.cidade}}">
+                                    <label for="cidadeshow">Cidade:</label>
+                                    <input disabled type="text" class="form-control" value="{{perfil.endereco.cidade}}" id="cidadeshow" placeholder="Cidade">
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="hidden" name="estado" id="estado" type="text" name="estado" value="">
+                                    <label for="estadoshow">Estado:</label>
+                                    <select disabled class="form-control" id="estadoshow">
+	                                        <option value="AC" {%if perfil.endereco.estado == 'AC'%} selected {%endif%}>Acre</option>
+                                        <option value="AL" {%if perfil.endereco.estado == 'AL'%} selected {%endif%}>Alagoas</option>
+                                        <option value="AP" {%if perfil.endereco.estado == 'AP'%} selected {%endif%}>Amapá</option>
+                                        <option value="AM" {%if perfil.endereco.estado == 'AM'%} selected {%endif%}>Amazonas</option>
+                                        <option value="BA" {%if perfil.endereco.estado == 'BA'%} selected {%endif%}>Bahia</option>
+                                        <option value="CE" {%if perfil.endereco.estado == 'CE'%} selected {%endif%}>Ceará</option>
+                                        <option value="DF" {%if perfil.endereco.estado == 'DF'%} selected {%endif%}>Distrito Federal</option>
+                                        <option value="ES" {%if perfil.endereco.estado == 'ES'%} selected {%endif%}>Espírito Santo</option>
+                                        <option value="GO" {%if perfil.endereco.estado == 'BA'%} selected {%endif%}>Goiás</option>
+                                        <option value="MA" {%if perfil.endereco.estado == 'MA'%} selected {%endif%}>Maranhão</option>
+                                        <option value="MT" {%if perfil.endereco.estado == 'MT'%} selected {%endif%} >Mato Grosso</option>
+                                        <option value="MS" {%if perfil.endereco.estado == 'MS'%} selected {%endif%}>Mato Grosso do Sul</option>
+                                        <option value="MG" {%if perfil.endereco.estado == 'MG'%} selected {%endif%}>Minas Gerais</option>
+                                        <option value="PA" {%if perfil.endereco.estado == 'PA'%} selected {%endif%}>Pará</option>
+                                        <option value="PB" {%if perfil.endereco.estado == 'PB'%} selected {%endif%}>Paraíba</option>
+                                        <option value="PR" {%if perfil.endereco.estado == 'PR'%} selected {%endif%}>Paraná</option>
+                                        <option value="PE" {%if perfil.endereco.estado == 'PE'%} selected {%endif%}>Pernambuco</option>
+                                        <option value="PI" {%if perfil.endereco.estado == 'PI'%} selected {%endif%}>Piauí</option>
+                                        <option value="RJ" {%if perfil.endereco.estado == 'RJ'%} selected {%endif%}>Rio de Janeiro</option>
+                                        <option value="RN" {%if perfil.endereco.estado == 'RN'%} selected {%endif%}>Rio Grande do Norte</option>
+                                        <option value="RS" {%if perfil.endereco.estado == 'RS'%} selected {%endif%}>Rio Grande do Sul</option>
+                                        <option value="RO" {%if perfil.endereco.estado == 'RO'%} selected {%endif%}>Rondônia</option>
+                                        <option value="RR" {%if perfil.endereco.estado == 'RR'%} selected {%endif%}>Roraima</option>
+                                        <option value="SC" {%if perfil.endereco.estado == 'SC'%} selected {%endif%}>Santa Catarina</option>
+                                        <option value="SP" {%if perfil.endereco.estado == 'SP'%} selected {%endif%}>São Paulo</option>
+                                        <option value="SE" {%if perfil.endereco.estado == 'SE'%} selected {%endif%}>Sergipe</option>
+                                        <option value="TO" {%if perfil.endereco.estado == 'TO'%} selected {%endif%}>Tocantins</option>
+                                        <option value="EX" {%if perfil.endereco.estado == 'EX'%} selected {%endif%}>Estrangeiro</option>
+	                                    </select>
+                                </div>
+                            </div>
+
+                    </div>
+                    <div class="card-footer" style="height: 4em">
+                        <button class="btn btn-info" type="submit" style="float:right"> Salvar Alterações</button>
+                        <a href="/" class="btn btn-dark" style="float:right; margin-right: 10px"> Voltar</a>
+                    </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal modificar foto -->
+<div class="modal fade" id="modificarfoto" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Modificar foto</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			<span aria-hidden="true">&times;</span>
+			</button>
+            </div>
+            <form id="formfoto" action="{% url 'accounts:modificar_foto' %}" method="POST" enctype="multipart/form-data">
+                {%csrf_token %}
+                <div class="modal-body text-center">
+                    <script>
+                        var flag = false;
+                        var cropper;
+                        //Função que obtem a imagem a ser enviada e visualiza no formulário
+                        function sleep(ms) {
+                            return new Promise(resolve => setTimeout(resolve, ms));
+                        }
+                        async function LoadImage(input) {
+                            if (readURL(input)) {
+                                await sleep(500);
+                                var image = document.getElementById('img_foto');
+                                if (flag) {
+                                    cropper.destroy();
+                                } else {
+                                    flag = true;
+                                }
+                                createCropper();
+                            }
+
+                        }
+
+                        function readURL(input) {
+                            if (input.files && input.files[0]) {
+                                var reader = new FileReader();
+
+                                reader.onload = function(e) {
+                                    $('#img_foto')
+                                        .attr('src', e.target.result)
+                                        .width(450);
+                                    //.height(197);
+                                };
+                                reader.readAsDataURL(input.files[0]);
+                            }
+                            return true;
+                        }
+
+                        function createCropper() {
+                            var image = document.getElementById('img_foto');
+                            cropper = new Cropper(image, {
+                                aspectRatio: 1 / 1,
+                                viewMode: 3,
+                                zoomable: false,
+                                crop(event) {
+                                    $('#xinput').val(event.detail.x);
+                                    $('#yinput').val(event.detail.y);
+                                    $('#widthinput').val(event.detail.width);
+                                    $('#heightinput').val(event.detail.height);
+                                },
+                            });
+                        }
+                    </script>
+                    <input id="xinput" type="hidden" name="x">
+                    <input id="yinput" type="hidden" name="y">
+                    <input id="widthinput" type="hidden" name="width">
+                    <input id="heightinput" type="hidden" name="height">
+                    <div max_width=100%>
+                        <img id="img_foto" src="{{perfil.foto.url}}" style="max-width: 100%" alt="Foto" />
+                    </div>
+                    <br/>
+                    <br/>
+                    <div class="custom-file text-center">
+                        <input type="file" class="custom-file-input" onchange="LoadImage(this)" id="foto" accept="image/*" name="foto">
+                        <label class="custom-file-label" for="customFile">Escolha um arquivo</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                    <button type="submit" class="btn btn-primary">Salvar foto</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% include 'footer.html' %}
+<script src="https://unpkg.com/imask"></script>
+<script>
+    var patternMask = IMask(
+        document.getElementById('cep'), {
+            mask: '00000-000'
+        });
+    var patternMask2 = IMask(
+        document.getElementById('Telefone'), {
+            mask: '(00) 00000-0000'
+        });
+</script>
+<script type="text/javascript">
+    //Script para pegar endereco
+    var element;
+
+    function apagarCampos() {
+        document.getElementById('rua').value = ("");
+        document.getElementById('ruashow').value = ("");
+        document.getElementById('bairro').value = ("");
+        document.getElementById('bairroshow').value = ("");
+        document.getElementById('cidade').value = ("");
+        document.getElementById('cidadeshow').value = ("");
+        document.getElementById('estado').value = ("");
+        document.getElementById('estadoshow').value = ("");
+    }
+
+    function apagar() {
+        if (document.getElementById('AlertCEP').childNodes[0].classList.contains('fadeOutUp')) {
+            document.getElementById('AlertCEP').innerHTML = "";
+        }
+    }
+
+    function callback(json) {
+        if (!("erro" in json)) {
+            //Atualiza os campos com os valores.
+            document.getElementById('rua').value = (json.logradouro);
+            document.getElementById('ruashow').value = (json.logradouro);
+            document.getElementById('bairro').value = (json.bairro);
+            document.getElementById('bairroshow').value = (json.bairro);
+            document.getElementById('cidade').value = (json.localidade);
+            document.getElementById('cidadeshow').value = (json.localidade);
+            document.getElementById('estado').value = (json.uf);
+            document.getElementById('estadoshow').value = (json.uf);
+            document.getElementById("numero").focus();
+            div = document.getElementById('AlertCEP').childNodes[0].classList;
+            element = document.getElementById('AlertCEP').childNodes[0];
+            div.remove('fadeInDown');
+            div.add('fadeOutUp');
+            element.addEventListener("animationend", apagar);
+
+        } else {
+            apagarCampos();
+            var div = document.getElementById('AlertCEP');
+            div.innerHTML = `<div class="alert alert-warning animated fadeInDown" role="alert">CEP não encontrado</div>`;
+        }
+    }
+
+    function pesquisacep(valor) {
+
+        var cep = patternMask.unmaskedValue;
+        //Nova variável "cep" somente com dígitos.
+        //var cep = ;
+        //console.log(cep.lenght)
+        if (cep.length != 8) return;
+        if (cep.length == 8) {
+            apagarCampos();
+        }
+        //Verifica se campo cep possui valor informado.
+        if (cep != "") {
+            //Expressão regular para validar o CEP.
+            var validacep = /^[0-9]{8}$/;
+
+            //Valida o formato do CEP.
+            if (validacep.test(cep)) {
+
+                //Cria um elemento javascript.
+                var script = document.createElement('script');
+
+                //Sincroniza com o callback.
+                script.src = 'https://viacep.com.br/ws/' + cep + '/json/?callback=callback';
+
+                //Insere script no documento e carrega o conteúdo.
+                document.body.appendChild(script);
+
+            } else {
+                apagarCampos();
+                var div = document.getElementById('AlertCEP');
+                div.innerHTML = `<div class="alert alert-warning fadeInDown" role="alert">Formato de CEP inválido</div>`;
+            }
+        }
+    };
+</script>
+
+<script>
+    $("#formfoto").submit(function(event) {
+        event.preventDefault();
+        var formData = new FormData();
+        var token = $('input[name="csrfmiddlewaretoken"]')[0];
+        if (typeof cropper != "undefined") {
+            cropper.getCroppedCanvas().toBlob(function(blob) {
+                formData.append('foto', blob);
+                $.ajax({
+                    url: "{%url 'accounts:modificar_foto'%}",
+                    headers: {
+                        "X-CSRFToken": token.value
+                    },
+                    method: "POST",
+                    data: formData,
+                    processData: false,
+                    //contentType: 'multipart/form-data',
+                    contentType: false,
+                    enctype: 'multipart/form-data',
+                    success: function(data) {
+                        if (data.success) {
+                            cropper.destroy();
+                            $('#modificarfoto').modal('hide');
+                            $('#img_foto').attr("src", data.newUrl);
+                            $('#profilepic').attr("src", data.newUrl);
+
+                        }
+                    },
+                    error: function() {
+                        event.preventDefault();
+                    }
+                });
+
+            });
+
+        }
+
+    });
+</script>

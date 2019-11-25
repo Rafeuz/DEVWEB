@@ -1,0 +1,182 @@
+{% load static %}
+{% include 'header.html' %}
+{% load l10n %} <!-- Para campos decimais com . em vez de ,-->
+
+<main role="main">
+    <!-- Bloco de pesquisa -->
+    {% include 'home/pesquisa_header.html' %}
+    <!-- / Bloco de pesquisa -->
+    <div class="container">
+        <!-- Conteúdo dinâmico -->
+        <div class="card mb-3">
+            <div class="row no-gutters">
+                <div class="col-md-4">
+                <img src="{% static ''%}{{livro.capa}}" class="card-img" alt="Sem capa" style="padding: 1em">
+                </div>
+                <div class="col-md-8">
+                <div class="card-body">
+                    <h3 class="card-title">{{livro.nome}}</h3>
+                    <p class="card-text">{{livro.resumo}}</p>
+                    <h2 style="margin-top:0.6em">Dados do livro</h2>
+                        <table class="table table-striped table-dark" style="margin-top: 0.4em;">
+                            <tbody>
+                                <tr>
+                                    <td>Autor(es):</td>
+                                    <td>{{livro.autor}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Edtora:</td>
+                                    <td>{{livro.editora}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Gênero:</td>
+                                    <td>
+                                        {% for item in livro.genero_choices %}
+                                            {% if livro.genero == item.0 %}{{item.1}}{% endif %}
+                                        {% endfor %}
+                                    </td>
+                                </tr>
+                                <td>ISBN:</td>
+                                    <td>{{livro.isbn_10}}, {{livro.isbn_13}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                </div>
+                </div>
+            </div>
+        </div>
+            <div class="card">
+                <div class="card-body" style="height: 600px">
+                    <h3 class="card-title">Mapa de bibliotecas com este livro</h3>
+                    <div id="map" style="height: 500px; border-radius: 5px;"></div>
+                </div>
+            </div>
+        <br/>
+        {% if bibs_associadas %}
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title">Bibliotecas com este livro</h3>
+                <div class="card-columns" style="column-count: 1;">
+                        {% for biblioteca in bibs_associadas %}
+                            <div class="card" style="width: 263px; padding: 0.1em;">
+                                <a href="{% url 'home:visualizarBiblioteca' biblioteca.id %}">
+                                    <div style="background-image: url({% static ''%}{{biblioteca.foto}}); background-size: cover; height: 200px; width: 200; background-position: center; margin: 1em 1em 0 1em"></div>
+                                </a>
+                                <div class="card-body">
+                                    <h5 class="card-title" style="height: 50px"> <a href="{% url 'home:visualizarBiblioteca' biblioteca.id %}">{{ biblioteca.nome }}</a></h5>
+                                    <p class="card-text">
+                                        {{ biblioteca.endereco.rua }} - {{ biblioteca.endereco.bairro }} / {{ biblioteca.endereco.cidade }}
+                                    </p>
+                                </div>
+                            </div> 
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title">Este livro não está em nenhuma biblioteca cadastrada</h3>
+                </div>
+            </div>
+        {% endif %}
+        <br/>
+        {% if livrousuario %}
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title">Usuários bibmap com este livro em seu acervo</h3>
+                <div class="card-columns" style="column-count: 1;">
+                        {% for livrouser in livrousuario %}
+                            <div class="card" style="width: 263px; padding: 1em 1em 0 1em; text-center">
+                                <a href="{% url 'accounts:visualizar' livrouser.perfil.user.username %}">
+                                    <img src="{{livrouser.perfil.foto.url}}" class="img-fluid rounded mx-auto d-block" alt="Foto de {{ livrouser.perfil }}">
+                                </a>
+                                <div class="card-body text-center">
+                                    <h5 class="card-title"> <a href="{% url 'accounts:visualizar' livrouser.perfil.user.username %}">{{ livrouser.perfil }}</a></h5>
+                                     {% if livrouser.estado == 5 %}
+                                        <p class="card-text">
+                                            <p style="color: gray; font-size: 12pt; margin-bottom: 0em;">Estado: Péssimo</p>
+                                        </p>
+                                        {% endif %}
+                                        {% if livrouser.estado == 4 %}
+                                        <p class="card-text">
+                                            <p style="color: gray; font-size: 12pt; margin-bottom: 0em;">Estado: Ruim</p>
+                                        </p>
+                                        {% endif %}
+                                        {% if livrouser.estado == 3 %}
+                                        <p class="card-text">
+                                            <p style="color: gray; font-size: 12pt; margin-bottom: 0em;">Estado: Regular</p>
+                                        </p>
+                                        {% endif %}
+                                        {% if livrouser.estado == 2 %}
+                                        <p class="card-text">
+                                            <p style="color: gray; font-size: 12pt; margin-bottom: 0em;">Estado: Bom</p>
+                                        </p>
+                                        {% endif %}
+                                        {% if livrouser.estado == 1 %}
+                                        <p class="card-text">
+                                            <p style="color: gray; font-size: 12pt; margin-bottom: 0em;">Estado: Ótimo</p>
+                                        </p>
+                                        {% endif %}
+                                        {% if livrouser.estado == 0 %}
+                                        <p class="card-text">
+                                            <p style="color: gray; font-size: 12pt; margin-bottom: 0em;">Estado: Excelente</p>
+                                        </p>
+                                        {% endif %}
+                                </div>
+                            </div> 
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">Nenhum usuário do Bibmap possui este livro cadastrado</h4>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    {% include 'footer.html' %}
+    <script>
+            var mymap = L.map('map').setView([-5.811148, -35.204347], 18);
+
+            //L.tileLayer('http://tile.stamen.com/toner/{z}/{x}/{y}.png', {
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery provided by © <a href="https://www.openstreetmap.org">OpenStreetMap</a>',
+            maxZoom: 18,
+            }).addTo(mymap);
+            var redMarker = L.AwesomeMarkers.icon({
+                icon: 'book',
+                markerColor: 'red',
+                prefix: 'fa',
+                iconColor: 'white'
+            });
+                
+            {%for biblioteca in bibmap%}
+            var marker = L.marker([{{biblioteca.latitude|unlocalize}}, {{biblioteca.longitude|unlocalize}}],{icon: redMarker}).addTo(mymap);
+            marker.bindPopup(`<a href="{% url 'home:visualizarBiblioteca' biblioteca.id %}"><b>{{biblioteca}}</b></a>`).openPopup();
+            {%endfor%}
+            $( document ).ready(function() {
+                    // Try HTML5 geolocation.
+                    if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                        var pos = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                        };
+                        var myMarker = L.AwesomeMarkers.icon({
+                            icon: 'street-view',
+                            markerColor: 'blue',
+                            prefix: 'fa',
+                            iconColor: 'white'
+                        });
+                        mymap.setView([pos.lat, pos.lng], 16);
+                        var marker = L.marker([pos.lat, pos.lng],{icon: myMarker}).addTo(mymap);
+                        marker.bindPopup("<b>Você está aqui</b>").openPopup();
+                    });
+                    }
+                });
+        </script>
+    </body>
+</html>

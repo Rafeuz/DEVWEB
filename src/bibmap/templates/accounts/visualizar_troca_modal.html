@@ -1,0 +1,101 @@
+{% load static %}
+<div class="modal fade" id="visualizar-troca-{{troca.id}}" tabindex="-1" role="dialog" aria-labelledby="VisualizarTroca" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Visualizar troca</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-6">
+                            {% if troca.livro_solicitante.perfil == request.user.perfil %}
+                            <h4 class="card-title">Meu livro</h4>
+                            <div class="card">
+                                <img src="{% static ''%}{{troca.livro_solicitante.livro.capa}}" class="card-img-top" alt="Capa {{troca.livro_solicitante.livro.titulo}}">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{troca.livro_solicitante.livro.nome}}</h5>
+                                    <p class="card-text">{{troca.livro_solicitante.livro.resumo|slice:300}}...</p>
+                                </div>
+                            </div>
+                            {% else %}
+                            <h4 class="card-title">Meu livro</h4>
+                            <div class="card">
+                                <img src="{% static ''%}{{troca.livro_solicitado.livro.capa}}" class="card-img-top" alt="Capa {{troca.livro_solicitante.livro.titulo}}">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{troca.livro_solicitado.livro.nome}}</h5>
+                                    <p class="card-text">{{troca.livro_solicitado.livro.resumo|slice:300}}...</p>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {% if troca.livro_solicitante.perfil == request.user.perfil %}
+                            <h4 class="card-title">Livro a ser trocado</h4>
+                            <div class="card">
+                                <img src="{% static ''%}{{troca.livro_solicitado.livro.capa}}" class="card-img-top" alt="Capa {{troca.livro_solicitado.livro.nome}}">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{troca.livro_solicitado.livro.nome}}</h5>
+                                    <p class="card-text">{{troca.livro_solicitado.livro.resumo|slice:300}}...</p>
+                                </div>
+                            </div>
+                            {% else %}
+                            <h4 class="card-title">Livro a ser trocado</h4>
+                            <div class="card">
+                                <img src="{% static ''%}{{troca.livro_solicitante.livro.capa}}" class="card-img-top" alt="Capa {{troca.livro_solicitante.livro.nome}}">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{troca.livro_solicitante.livro.nome}}</h5>
+                                    <p class="card-text">{{troca.livro_solicitante.livro.resumo|slice:300}}...</p>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row">
+                        {% if troca.livro_solicitante.perfil == request.user.perfil %}
+                        <div class="col-md-12" style="margin-top: 1em">
+                            <h4 style="margin-bottom: 0.8em">Dados do usuário a ser trocado o livro</h4>
+                            <div class="card">
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item"><b>Nome:</b> {{troca.livro_solicitado.perfil}}</li>
+                                    <li class="list-group-item"><b>Email:</b> {{troca.livro_solicitado.perfil.user.email}}</li>
+                                    <li class="list-group-item"><b>Telefone:</b> {{troca.livro_solicitado.perfil.telefone}}</li>
+                                </ul>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="col-md-12" style="margin-top: 1em">
+                            <h4 style="margin-bottom: 0.8em">Dados do usuário a ser trocado o livro</h4>
+                            <div class="card">
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item"><b>Nome:</b> {{troca.livro_solicitante.perfil}}</li>
+                                    <li class="list-group-item"><b>Email:</b> {{troca.livro_solicitante.perfil.user.email}}</li>
+                                    <li class="list-group-item"><b>Telefone:</b> {{troca.livro_solicitante.perfil.telefone}}</li>
+                                </ul>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                {% if troca.livro_solicitado.perfil == request.user.perfil %}
+                <form action="{% url 'accounts:FinalizaTrocaDeLivro' troca.id %}" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" value="True" name="confirmacao" />
+                    <button type="submit" class="btn btn-info"><i class="fa fa-check" aria-hidden="true"></i> Aceitar troca</button>
+                </form>
+                <form action="{% url 'accounts:FinalizaTrocaDeLivro' troca.id %}" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" value="" name="confirmacao" />
+                    <button type="submit" class="btn btn-danger"><i class="fa fa-times" aria-hidden="true"></i> Rejeitar troca</button>
+                </form>
+                {% endif %}
+                <button type="button" class="btn btn-dark" data-dismiss="modal"><i class="fa fa-sign-out" aria-hidden="true"></i> Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>

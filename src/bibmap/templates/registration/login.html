@@ -1,0 +1,59 @@
+{% load static %}
+{% include 'header.html' %}
+<body>
+<form action="{%url 'accounts:trylogin' %}{%if request.GET.next%}?next={{request.GET.next}}{%endif%}" method="POST">
+	{%csrf_token%}
+<div class="row" style="margin-top: 6em;">
+	<div class="col-md-4 offset-md-4">
+		<div class="card auth-card">
+			<div class="card-content">
+				<div class="card-header">
+						{%if messages%}
+						{% for message in messages %}
+						<div class="alert alert-{{message.tags}} text-center" role="alert">
+							{{message}}
+						</div>
+						{% endfor %}
+						{% endif %}
+						Entrar
+				</div>
+				<div class="card-body">
+					<div class="card-group">
+						<label for="User">Nome de Usuário:</label>
+    					<input type="text" class="form-control" id="User" name="user" />
+					</div>
+					<div class="card-group">
+						<label for="pwd">Senha:</label><br>
+    					<input type="password" class="form-control" id="pwd" name="pwd" />
+					</div>
+				</div>
+				<div class="card-footer">
+					<button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#registrarModal"> Cadastre-se <i class="fa fa-sign-out"></i></button>
+					<input type="submit" class="btn btn-success float-right" value="Entrar" />
+				</div>
+			</div>
+				
+		</div>
+	</div>
+</div>
+</form>
+
+</body>
+{% include 'footer.html' %}
+{%if tentativa.flag%}
+<script>
+$(document).ready(function(){
+    $('#registrarModal').modal('show');
+});
+
+</script>
+{%endif%}
+<script src="https://unpkg.com/imask"></script>
+<script>
+var patternMask = IMask(
+  document.getElementById('cep'),
+  {
+    mask: '00000-000'
+  });
+</script>
+

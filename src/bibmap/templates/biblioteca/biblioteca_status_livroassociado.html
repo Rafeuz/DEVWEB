@@ -1,0 +1,29 @@
+<div class="modal fade" id="mudarstatus-{{livro.id}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel2" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModal2CenterTitle">Mudar status</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                {% if livro.livro.status %}
+                    <div class="alert alert-danger text-center" role="alert">
+                        Você deseja desativar este livro?
+                    </div>
+                {% else %}
+                    <div class="alert alert-success text-center" role="alert">
+                        Você deseja ativar este livro?
+                    </div>
+                {% endif %} 
+            </div>
+            <div class="modal-footer">
+                <form action="{% url 'biblioteca:EditarStatusLivroAssociado' livro.id %}">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Não</button>
+                    <button type="submit" class="btn btn-success">Sim</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

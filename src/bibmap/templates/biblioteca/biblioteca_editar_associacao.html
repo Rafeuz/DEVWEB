@@ -1,0 +1,99 @@
+<form method="POST" action="{% url 'biblioteca:EditarLivroAssociado' livro.id %}">
+{% csrf_token %} 
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="modal fade" id="editarLAModal-{{ livro.id }}">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Editar associação</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label for="livro">Livro:</label> 
+                                    <input type="text" class="form-control" id="livro_id" name="livro_id" value="{{ livro.livro.nome }}" disabled>
+                                    <!--select name="livro_id" class="form-control">
+                                        <option value="{{ livro.nome }}"></option>
+                                    {% for livro in livros %}
+
+                                        <option value="{{ livro.id }}">{{ livro.nome }}</option>    
+
+                                    {% endfor %}
+                                    </select><br-->
+                                </div>
+                                <!--div class="form-group">
+                                    <label for="quantidade_de_livros">Qtd. de livros:</label>
+                                    <input type="number" class="form-control" id="qtd_livros" name="quantidade_de_livros" value="{{ livro.quantidadedelivros }}">
+                                </div-->
+                                <div class="form-group">
+                                    <label for="estado">Estado:</label>
+                                    <!--input type="number" class="form-control" id="estado_livro" name="estado" placeholder="Estado do livro"-->
+                                    <select name="estado" class="form-control">
+                                        <!--option value="{{ livro.estado }}">{{ livro.estado }}</option>
+                                        <option value="0">Excelente</option>
+                                        <option value="1">Ótimo</option>
+                                        <option value="2">Bom</option>
+                                        <option value="3">Regular</option>
+                                        <option value="4">Ruim</option>
+                                        <option value="5">Péssimo</option-->
+                                        
+                                        {% if livro.estado == 0 %}
+                                            <option selected="selected" value="0">Excelente</option>
+                                        {% else %}
+                                            <option value="0">Excelente</option>
+                                        {% endif %}
+                                        {% if livro.estado == 1 %}
+                                            <option selected="selected" value="1">Ótimo</option>
+                                        {% else %}
+                                            <option value="1">Ótimo</option>
+                                        {% endif %}
+                                        {% if livro.estado == 2 %}
+                                            <option selected="selected" value="2">Bom</option>
+                                        {% else %}
+                                            <option value="2">Bom</option>
+                                        {% endif %}
+                                        {% if livro.estado == 3 %}
+                                            <option selected="selected" value="3">Regular</option>
+                                        {% else %}
+                                            <option value="3">Regular</option>
+                                        {% endif %}
+                                        {% if livro.estado == 4 %}
+                                            <option selected="selected" value="4">Ruim</option>
+                                        {% else %}
+                                            <option value="4">Ruim</option>
+                                        {% endif %}
+                                        {% if livro.estado == 5 %}
+                                            <option selected="selected" value="5">Péssimo</option>
+                                        {% else %}
+                                            <option value="5">Péssimo</option>
+                                        {% endif %}
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="corredor">Corredor:</label>
+                                    <input type="text" class="form-control" id="corredor_livro" name="corredor" value="{{ livro.corredor }}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="prateleira">Prateleira:</label>
+                                    <input type="text" class="form-control" id="prateleira_livro" name="prateleira" value="{{ livro.prateleira }}">
+                                </div>
+                                <div class="form-group">
+                                        <label for="livro">Protocolo:</label> 
+                                        <input type="number" class="form-control" id="livro_numero_protocolo" name="livro_numero_protocolo" value="{{ livro.numero_protocolo }}" disabled>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn btn-success">Salvar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> 
+    </div>
+</form> 
