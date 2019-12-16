@@ -4,6 +4,18 @@
 
 {% block content %}
 
+{% if messages %}
+
+{% for message in messages %}
+	
+<div class="alert alert-{{ message.tag }}">
+	{{ message }}
+</div>
+
+{% endfor %}
+
+{% endif %}
+
 <div class="card col-md-3 rounded mx-auto d-block" style="margin-top: 1rem; margin-left: 1rem;">
 	    <div class="card-body">
 	    	<!--<img src="img/bolos">-->
