@@ -1,0 +1,36 @@
+{% extends 'base.html' %} 
+
+{% load crispy_forms_tags %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+
+<div class="card">
+	<div class="card-header">
+		<legend>Entre na sua conta :)</legend>
+	</div>
+	
+	<div class="card-body">
+		<form method="POST">
+		{% csrf_token %}
+		
+			<fieldset class="form-group">
+				
+				{{ form|crispy }}
+
+			</fieldset>
+			<div class="form-group">
+				<button class="btn btn-success" type="submit">Entrar</button>			
+			</div>
+		</form>
+	</div>
+	
+	<div class="card-footer">
+		<small class="text-muted">
+			Ainda não tem uma conta? <a class="ml-2" href="{% url 'registrar' %}">clique aqui</a>
+		</small>
+	</div>
+</div>
+
+{% endblock %}

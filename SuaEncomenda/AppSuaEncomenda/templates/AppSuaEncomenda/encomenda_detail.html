@@ -1,0 +1,26 @@
+{% extends 'base.html' %} 
+
+{% block title %}Detalhes de encomenda{% endblock %}
+
+{% block content %}
+
+<div class="card col-md-3 rounded mx-auto d-block" style="margin-top: 1rem; margin-left: 1rem;">
+	    <div class="card-body">
+	    	<!--<img src="img/bolos">-->
+	        <div class="card-content">
+	            <h5 class="card-title text-center">{{ encomenda.nome }}</h5>
+
+	            <p>Preço: R$ {{ encomenda.preco }}</p>
+	            <p>Descrição: {{ encomenda.descricao }}</p>
+	            <p>Confeiteiro(a): <a href="{% url 'perfil' %}">{{ encomenda.confeiteira }}</a></p>
+	        </div>
+			{% if encomenda.confeiteira == user %}
+				<a class="btn btn-primary" href="{% url 'AppSuaEncomenda:AtualizarEncomenda' encomenda.id %}"><i class="fa fa-edit"></i> Atualizar</a>
+				<a class="btn btn-danger" href="{% url 'AppSuaEncomenda:ExcluirEncomenda' encomenda.id %}"><i class="fa fa-trash"></i> Excluir</a>
+			{% endif %}
+
+	    </div>
+
+	</div>
+
+{% endblock %}

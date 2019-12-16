@@ -1,19 +1,37 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'base.html' %} 
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>SuaEncomenda</title>
-</head>
+{% block title %}Sua Encomenda{% endblock %}
 
-<body>
-    <h1>SuaEncomenda </h1>
+{% block content %}
 
-    {% for encomenda in encomendas %}
-    <p>nome: {{ encomenda.nome }}</p>
-    {% endfor %}
-</body>
+<main style="margin-top: 5em;">
 
-</html>
+	<h3 class="text-center" style="margin-top: 1em;">Encomendas</h3>
+	
+	<div class="container">
+		<div class="row justify-content-center">
+			{% for encomenda in encomendas %}
+			<div class="card col-md-3 rounded" style="margin-top: 1rem; margin-left: 1rem; margin-bottom: 1rem">
+			    <div class="card-body">
+			    	<!--<img src="img/bolos">-->
+			        <div class="card-content">
+			            <h5 class="card-title text-center">{{ encomenda.nome }}</h5>
+
+			            <p>Preço: R$ {{ encomenda.preco }}</p>
+			            <p>Descrição: {{ encomenda.descricao }}</p>
+			            <p>Confeiteiro(a): <a href="{% url 'perfil' %}">{{ encomenda.confeiteira }}</a></p>
+
+			            <a class="btn btn-primary ml-5" href="{% url 'AppSuaEncomenda:DetalheEncomenda' encomenda.id %}"><i class="fa fa-search-plus"></i> Visualizar</a>
+			        </div>
+			    </div>
+			</div>
+			{% endfor %} 
+		</div>
+	</div>
+
+
+
+</main>
+
+
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends 'base.html' %} 
+
+{% load crispy_forms_tags %}
+
+{% block title %}Excluir encomenda{% endblock %}
+
+{% block content %}
+
+<div class="card">
+	<div class="card-header">
+		<legend>Excluir encomenda</legend>
+	</div>
+	
+	<div class="card-body">
+		<form method="POST">
+		{% csrf_token %}
+		
+			<fieldset class="form-group">
+				<h2>Você realmente quer excluir a encomenda "{{ encomenda.nome }}"?</h2>
+			</fieldset>
+			<div class="form-group">
+				<button class="btn btn-danger" type="submit"><i class="fa fa-times"></i> Sim, exclua</button>
+				<a class="btn btn-secondary" href="{% url 'AppSuaEncomenda:DetalheEncomenda' encomenda.id %}"><i class="fa fa-arrow-left"></i> Cancelar</a>
+			</div>
+		</form>
+	</div>
+</div>
+
+{% endblock %}

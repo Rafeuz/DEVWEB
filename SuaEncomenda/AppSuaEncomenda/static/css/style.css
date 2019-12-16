@@ -1,0 +1,11 @@
+body{
+	background-image: url(cupcake.png);
+	background-color: #F0AA64;
+}
+
+.img_perfil{
+	height: 125px;
+	width: 125px;
+	margin-right: 20px;
+	margin-bottom: 16px;
+}

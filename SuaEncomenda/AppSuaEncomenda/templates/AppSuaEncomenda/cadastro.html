@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}Cadastro de Encomendas{% endblock %} 
+
+{% block content %}
+
+<main style="margin-top: 5em;">
+
+	<h2 class="text-center">Cadastre sua Encomenda</h2>
+
+	<form action="{% url 'AppSuaEncomenda:cadastrar' %}" method="POST">
+		{% csrf_token %}
+		<div class="form-group col-md-8 mx-auto" style="margin-top: 1em;">
+			
+			<div class="input-group mb-3">
+				<div class="input-group-prepend">
+			    	<span class="input-group-text" id="inputGroup-sizing-default">Nome</span>
+				</div>
+				<input type="text" name="nome" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
+			</div>
+
+			<div class="input-group mb-3">
+				<div class="input-group-prepend">
+					<span class="input-group-text" id="inputGroupFileAddon01">Upload</span>
+				</div>
+				<div class="custom-file">
+					<input type="file" class="custom-file-input" id="inputGroupFile01" aria-describedby="inputGroupFileAddon01">
+					<label class="custom-file-label" for="inputGroupFile01">Choose file</label>
+				</div>
+			</div>
+
+			<div class="input-group mb-3">
+				<div class="input-group-prepend">
+			    	<span class="input-group-text" id="inputGroup-sizing-default">Preço</span>
+				</div>
+				<input type="text" name="preco" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
+			</div>
+
+			<div class="input-group mb-3">
+				<div class="input-group-prepend">
+			    	<span class="input-group-text" id="inputGroup-sizing-default">Descrição</span>
+				</div>
+				<input type="text" name="descricao" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
+			</div>
+
+			<button type="submit" class="btn btn-success" style="float: right;"><i class="fa fa-plus"></i> Cadastrar</button>
+			<a href="/" class="btn btn-danger"><i class="fa fa-times"></i> Cancelar</a>
+		</div>
+		
+
+	</form>
+
+</main>
+
+{% endblock %}

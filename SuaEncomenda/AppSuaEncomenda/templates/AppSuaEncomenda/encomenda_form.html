@@ -1,0 +1,31 @@
+{% extends 'base.html' %} 
+
+{% load crispy_forms_tags %}
+
+{% block title %}Nova encomenda{% endblock %}
+
+{% block content %}
+
+<div class="card">
+	<div class="card-header">
+		<legend>Nova encomenda</legend>
+	</div>
+	
+	<div class="card-body">
+		<form method="POST">
+		{% csrf_token %}
+		
+			<fieldset class="form-group">
+				
+				{{ form|crispy }}
+
+			</fieldset>
+			<div class="form-group">
+				<a class="btn btn-danger" href="/">Cancelar</a>	
+				<button class="btn btn-success" type="submit">Postar</button>	
+			</div>
+		</form>
+	</div>
+</div>
+
+{% endblock %}
